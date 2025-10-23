@@ -34,290 +34,370 @@ plt.style.use('custom.mplstyle')
 # Paths
 path = os.path.dirname(os.path.dirname( __file__ ))
 
-# Functions:
+# Functions
 def filter_countries(row):
+    """Filter countries based on predefined set"""
     global set_of_countries
     if row['geo'] in set_of_countries:
         return 'in'
-    else: return 'out'
+    else: 
+        return 'out'
 
-# Loading prepared datasets
-print('\n')
-print('----- Efficiency and Diversity of R&D in Knowledge‑Intensive Services 2005‑2023 -----\n')
+def load_datasets():
+    print("---- O1.1 Loading datasets...")
+    
+    df_path = os.path.join(path, 'data/scraper_data.csv')
+    df = pd.read_csv(df_path)
+    print(f"✓ Main dataset loaded: {len(df):,} records")
 
-print('--- O1 Data preparation ...\n')
+    mdf_path = os.path.join(path, 'data/scraper_metadata.csv')
+    mdf = pd.read_csv(mdf_path)
+    print(f"✓ Metadata loaded: {len(mdf):,} records")
 
-print('--- O1.1 Loading prepared datasets ...\n')
-df_path = os.path.join(path, 'data/scraper_data.csv')
-df = pd.read_csv(df_path)
-print('> dataset')
-
-mdf_path = os.path.join(path, 'data/scraper_metadata.csv')
-mdf = pd.read_csv(mdf_path)
-print('> metadata')
-
-co_path = os.path.join(path, 'data/eu_efta_countries.csv')
-euefta = pd.read_csv(co_path)
-print('> EU + EFTA countries list\n')
+    co_path = os.path.join(path, 'data/eu_efta_countries.csv')
+    euefta = pd.read_csv(co_path)
+    print(f"✓ EU + EFTA countries loaded: {len(euefta):,} countries\n")
+    
+    return df, mdf, euefta
 
 
-# Filtering and renaming variables
-print('--- O1.2 Filtering and renaming variables ...\n')
+def filter_and_rename_variables(df, euefta):
+    print("---- O1.2 Filtering and renaming variables:")
+    
+    print("• Converting time to datetime format")
+    df['time'] = df['time'].astype('int32')
+    df['Year'] = pd.to_datetime(df['time'], format = '%Y', errors = 'coerce')
+    nan_pct = df.time.isnull().sum()*100/len(df.time)
+    print(f"• Year conversion: {nan_pct:.0f}% values converted to NaT")
 
-df['time'] = df['time'].astype('int32')
-df['Year'] = pd.to_datetime(df['time'], format = '%Y', errors = 'coerce')
-print(f"> Year: {df.time.isnull().sum()*100/len(df.time):.0f}% of entries were coerced to NaT.")
+    print("• Filtering by NACE classification")
+    df = df[df['nace_r2'] == "G-N"]
+    print(f"• NACE type included: {df.nace_r2.unique()}")
 
-df = df[df['nace_r2'] == "G-N"]
-print(f'> Only the following NACE type was included: {df.nace_r2.unique()}')
+    print("• Filtering by EU + EFTA countries")
+    global set_of_countries
+    set_of_countries = euefta['geo'].values
+    df['geo_euefta'] = df.apply(filter_countries, axis = 1)
+    df = df[df['geo_euefta'] == 'in']
+    print(f"• Countries included: {len(df.geo.unique())} EU + EFTA countries")
+    df = pd.merge(df, euefta, on = ['geo'], how = 'left') 
 
-set_of_countries = euefta['geo'].values
-df['geo_euefta'] = df.apply(filter_countries, axis = 1)
-df = df[df['geo_euefta'] == 'in']
-print(f'> Only EU + EFTA countries were included: {df.geo.unique()}')
-df = pd.merge(df, euefta, on = ['geo'], how = 'left') 
+    print("• Renaming columns for clarity")
+    df = df.rename(columns = {"pers2_FTE_RSE": "FTE Researcher",
+                              "pers2_FTE_TOTAL": "FTE All",
+                              "fem2_FTE_RSE" : "FTE Researcher Fem",
+                              "exp2_MIO_EUR": "GDE Euro"})
 
-df = df.rename(columns = {"pers2_FTE_RSE": "FTE Researcher",
-                          "pers2_FTE_TOTAL": "FTE All",
-                          "fem2_FTE_RSE" : "FTE Researcher Fem",
-                          "exp2_MIO_EUR": "GDE Euro"})
+    print("• Removing unused columns")
+    df = df.drop(['pers2_HC_RSE', 'pers2_HC_TOTAL', 'exp2_PC_TOT', 'nace_r2', 'geo_euefta', 'time'], axis = 1)
+    df = df[['Country', 'geo', 'Year', 'GDE Euro', 'FTE All', 'FTE Researcher', 'FTE Researcher Fem']]
 
-df = df.drop(['pers2_HC_RSE', 'pers2_HC_TOTAL', 'exp2_PC_TOT', 'nace_r2', 'geo_euefta', 'time'], axis = 1)
-df = df[['Country', 'geo', 'Year', 'GDE Euro', 'FTE All', 'FTE Researcher', 'FTE Researcher Fem']]
+    print(f"Pre-processed Dataset Preview:")
+    print(f"• Shape: {df.shape[0]:,} rows × {df.shape[1]} columns")
+    print("• Sample data:")
+    print(df.sample(3))
+    print()
+    
+    return df
 
-print('\n')
-print('--- Pre-processed dataset preview:')
-print(df.sample(10))
-print('\n')
+def review_missing_data(df):
+    print("---- O1.3 Missing data analysis:")
 
-# Reviewing NaNs and missing data
-print('--- O1.3 Reviewing NaNs and missing data...\n')
+    nan_count = df.isna().sum()
+    all_count = df.iloc[:,0].count()
+    prc = (nan_count * 100)/all_count
+    print("Missing Data by Column:")
+    for col, pct in prc.items():
+        if pct > 0:
+            print(f"• {col}: {pct:.0f}% missing")
+    print()
 
-# The percentage of data entry gaps per column:
-nan_count = df.isna().sum()
-all_count = df.iloc[:,0].count()
-prc = (nan_count * 100)/all_count
-print('> The percentage of NaN values per column:')
-print(prc.apply(lambda x: x).apply("{:,.0f} %".format))
-print('\n')
+    # The percentage of data entry gaps per country:
+    df_nans = df.groupby('Country')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
+        lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
+    df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
 
-# The percentage of data entry gaps per country:
-df_nans = df.groupby('Country')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
-    lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
-df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
+    g = sns.catplot(kind = 'bar', x = 'Country', y = 'value', row = 'metrics', height = 3, aspect = 3, 
+                    sharey = True, sharex = False, margin_titles = True,  data = df_nans)
+    g.set(title = 'The percentage of NaN values per country', 
+          xlabel = "Country", ylabel = "Percentage of NaN entries [%]")
+    plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
+    g.tick_params(axis = 'x', rotation = 90)
+    g.figure.subplots_adjust(hspace = 0.8)
+    g.set(ylim = (0, 100))
+    plt.savefig('../figures/Fig1.3.1 The percentage of NaN values per country.png')
+    print("✓ Saved: Fig1.3.1 The percentage of NaN values per country")
 
-g = sns.catplot(kind = 'bar', x = 'Country', y = 'value', row = 'metrics', height = 3, aspect = 3, 
-                sharey = True, sharex = False, margin_titles = True,  data = df_nans)
-g.set(title = 'The percentage of NaN values per country', 
-      xlabel = "Country", ylabel = "Percentage of NaN entries [%]")
-plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
-g.tick_params(axis = 'x', rotation = 90)
-g.figure.subplots_adjust(hspace = 0.8)
-g.set(ylim = (0, 100))
-plt.savefig('../figures/Fig1.3.1 The percentage of NaN values per country.png')
-print('> saving Fig1.3.1 The percentage of NaN values per country')
+    # The percentage of data entry gaps across years:
+    df_nans = df.groupby(
+        'Year')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
+        lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Year')
+    df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
 
-# The percentage of data entry gaps across years:
-df_nans = df.groupby(
-    'Year')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
-    lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Year')
-df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
+    g = sns.relplot(kind = 'line', x = 'Year', y = 'value', data = df_nans, hue = 'metrics')
+    g.set(title = 'The percentage of NaN values per year', 
+          xlabel = "Countries", ylabel = "Percentage of NaN entries [%]")
+    sns.move_legend(g, "upper right", title = 'Metrics', bbox_to_anchor = (0.68, 0.97))
+    g.set(ylim = (0, 100))
+    plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
+    g.figure.set_size_inches(10,4)
+    plt.savefig('../figures/Fig1.3.2 The percentage of data entry gaps across years.png')
+    print("✓ Saved: Fig1.3.2 The percentage of data entry gaps across years")
 
-g = sns.relplot(kind = 'line', x = 'Year', y = 'value', data = df_nans, hue = 'metrics')
-g.set(title = 'The percentage of NaN values per year', 
-      xlabel = "Countries", ylabel = "Percentage of NaN entries [%]")
-sns.move_legend(g, "upper right", title = 'Metrics', bbox_to_anchor = (0.68, 0.97))
-g.set(ylim = (0, 100))
-plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
-g.figure.set_size_inches(10,4)
-plt.savefig('../figures/Fig1.3.2 The percentage of data entry gaps across years.png')
-print('> saving Fig1.3.2 The percentage of data entry gaps across years')
+    # Choosing countries with the least data entry gaps.
+    print("Filtering Countries by Data Quality:")
+    df_nans = df.groupby(['Country','geo'])[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
+        lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
+    df_nans = df_nans[(df_nans['FTE Researcher'] <= 20) & (df_nans['FTE Researcher Fem'] <= 20) & (df_nans['FTE All'] <= 20) & (df_nans['GDE Euro'] <= 20)]
+    df_nans.reset_index(inplace = True)
 
-# Choosing countries with the least data entry gaps.
-df_nans = df.groupby(['Country','geo'])[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
-    lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
-df_nans = df_nans[(df_nans['FTE Researcher'] <= 20) & (df_nans['FTE Researcher Fem'] <= 20) & (df_nans['FTE All'] <= 20) & (df_nans['GDE Euro'] <= 20)]
-df_nans.reset_index(inplace = True)
+    global set_of_countries
+    set_of_countries = df_nans.geo.unique()
+    df['geo_nan'] = df.apply(filter_countries, axis = 1)
+    df = df[df['geo_nan'] == "in"]
+    print(f"• Countries selected for analysis: {len(df.Country.unique())} countries")
+    print(f"• Selected countries: {df.Country.unique()}")
+    print()
+    
+    return df
 
-set_of_countries = df_nans.geo.unique()
-df['geo_nan'] = df.apply(filter_countries, axis = 1)
-df = df[df['geo_nan'] == "in"]
-print(f'> Only following EU + EFTA countries were further analysed: {df.Country.unique()}')
-print('\n')
+def calculate_efficiency_metrics(df):
+    print("---- O2 Efficiency and Labor Intensity analysis:")
 
-print('--- O2 Sectors spending efficiency and labor intensity ...\n')
+    print("• O2.1 Calculating Annual Spending Efficiency")
+    efficiency_calc = df.groupby(['Country', 'Year'])[['GDE Euro','FTE Researcher']].apply(
+        lambda x: pd.Series({
+            'SpendEff': x['GDE Euro'].sum() / x['FTE Researcher'].sum() 
+                if not (x['GDE Euro'].isna().any() or x['FTE Researcher'].isna().any()) 
+                else float('nan')})).reset_index()
+    df = df.merge(efficiency_calc, on=['Country', 'Year'], how = 'left')
+    nan_pct = df['SpendEff'].isnull().sum()*100/len(df['SpendEff'])
+    print(f"• SpendEff: {nan_pct:.0f}% values converted to NaN")
 
-# A1.1 Annual Spending Efficiency
-print('--- O2.1 Annual Spending Efficiency calculations ...\n')
+    g = sns.relplot(kind = 'line', x = 'Year', y = 'SpendEff', data = df, hue = 'Country', errorbar = None)
+    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
+    g.set(title = 'Annual Spending Efficiency per a Researcher (FTE)', 
+          xlabel = "Calendar year", ylabel = "Spending Efficiency [MIO € / 1 Reearcher FTE]")
+    g.figure.set_size_inches(10,4)
+    plt.savefig('../figures/Fig2.1 Annual Spending Efficiency per a Researcher FTE.png')
+    print("✓ Saved: Fig2.1 Annual Spending Efficiency per a Researcher FTE")
 
-efficiency_calc = df.groupby(['Country', 'Year'])[['GDE Euro','FTE Researcher']].apply(
-    lambda x: pd.Series({
-        'SpendEff': x['GDE Euro'].sum() / x['FTE Researcher'].sum() 
-            if not (x['GDE Euro'].isna().any() or x['FTE Researcher'].isna().any()) 
-            else float('nan')})).reset_index()
-df = df.merge(efficiency_calc, on=['Country', 'Year'], how = 'left')
-print(f"> SpendEff: {df['SpendEff'].isnull().sum()*100/len(df['SpendEff']):.0f}% of entries were coerced to NaN.")
+    print("\n• O2.2 Calculating Annual Labor Intensity")
+    labour_calc = df.groupby(['Country', 'Year'])[['GDE Euro','FTE Researcher']].apply(
+        lambda x: pd.Series({
+            'LaborInt': x['FTE Researcher'].sum() / (x['GDE Euro'].sum())
+                if not (x['GDE Euro'].isna().any() or x['FTE Researcher'].isna().any()) 
+                else float('nan')})).reset_index()
+    nan_pct = labour_calc['LaborInt'].isnull().sum()*100/len(labour_calc['LaborInt'])
+    print(f"• LaborInt: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(labour_calc, on=['Country', 'Year'], how = 'left')
 
-g = sns.relplot(kind = 'line', x = 'Year', y = 'SpendEff', data = df, hue = 'Country', errorbar = None)
-sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-g.set(title = 'Annual Spending Efficiency per a Researcher (FTE)', 
-      xlabel = "Calendar year", ylabel = "Spending Efficiency [MIO € / 1 Reearcher FTE]")
-g.figure.set_size_inches(10,4)
-plt.savefig('../figures/Fig2.1 Annual Spending Efficiency per a Researcher FTE.png')
-print('> Saving Fig2.1 Annual Spending Efficiency per a Researcher FTE')
-print('\n')
+    g = sns.relplot(kind = 'line', x = 'Year', y = 'LaborInt', data = df, hue = 'Country', errorbar = None)
+    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
+    g.set(title = 'Annual Labor Intensity per 1 MIO €', 
+          xlabel = "Calendar year", ylabel = "Labor Intensity [Reearcher FTE / 1 MIO €]")
+    g.figure.set_size_inches(10,4)
+    plt.savefig('../figures/Fig2.2 Annual Labor Intensity per million euro.png')
+    print("✓ Saved: Fig2.2 Annual Labor Intensity per million euro")
+    print()
+    
+    return df
 
-# A1.2 Annual Labor Intensity
-print('--- O2.2 Annual Labor Intensity calculations ...\n')
+def calculate_female_share(df):
+    print("---- O3.1 Female researcher share analysis:")
 
-labour_calc = df.groupby(['Country', 'Year'])[['GDE Euro','FTE Researcher']].apply(
-    lambda x: pd.Series({
-        'LaborInt': x['FTE Researcher'].sum() / (x['GDE Euro'].sum())
-            if not (x['GDE Euro'].isna().any() or x['FTE Researcher'].isna().any()) 
-            else float('nan')})).reset_index()
-print(f"> LaborInt: {labour_calc['LaborInt'].isnull().sum()*100/len(labour_calc['LaborInt']):.0f}% of entries were coerced to NaN.")
-df = df.merge(labour_calc, on=['Country', 'Year'], how = 'left')
+    print("• Calculating Female Share of Researcher FTEs")
+    femshare_calc = df.groupby(
+        ['Country', 'Year'])[['FTE Researcher', 'FTE Researcher Fem']].apply(
+        lambda x: pd.Series({
+            'FemShare': x['FTE Researcher Fem'].sum() / (x['FTE Researcher'].sum())
+                if not (x['FTE Researcher Fem'].isna().any() or x['FTE Researcher'].isna().any()) 
+               else float('nan')})).reset_index()
+    nan_pct = femshare_calc['FemShare'].isnull().sum()*100/len(femshare_calc['FemShare'])
+    print(f"• FemShare: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(femshare_calc, on=['Country', 'Year'], how = 'left')
 
-g = sns.relplot(kind = 'line', x = 'Year', y = 'LaborInt', data = df, hue = 'Country', errorbar = None)
-sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-g.set(title = 'Annual Labor Intensity per 1 MIO €', 
-      xlabel = "Calendar year", ylabel = "Labor Intensity [Reearcher FTE / 1 MIO €]")
-g.figure.set_size_inches(10,4)
-plt.savefig('../figures/Fig2.2 Annual Labor Intensity per million euro.png')
-print('> Saving Fig2.2 Annual Labor Intensity per million euro')
-print('\n')
+    g = sns.relplot(kind = 'line', x = 'Year', y = 'FemShare', data = df,
+                    hue = 'Country', errorbar = None)
+    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
+    g.set(title = 'Annual Female Share of Researchers (FTEs)', 
+          xlabel = "Calendar year", ylabel = "Female Share of Researchers")
+    g.figure.set_size_inches(10,4)
+    plt.savefig('../figures/Fig3.1 Annual Female Share of Researchers.png')
+    print("✓ Saved: Fig3.1 Annual Female Share of Researchers")
+    print()
+    
+    return df
 
-print('--- O3 Participation of female researchers ...\n')
+def calculate_correlations(df):
+    print("---- O3.2 Relationship between Spending Efficiency and Female Share")
 
-# A2.1 Female Share of Researcher FTEs
-print('--- O3.1 Female Share of Researcher FTEs calculations ...\n')
+    print("• Preparing data for correlation analysis")
+    new_df = df[df['FemShare'].notna() & df['SpendEff'].notna()]
+    print(f"• Valid data points: {len(new_df):,} observations")
+    
+    fig = plt.figure()
+    fig.set_size_inches(5.35, 5)
+    sns.scatterplot(data = new_df, x = 'FemShare', y = 'SpendEff', hue = 'Country')
+    plt.title('Female Share vs. Spending Efficiency')
+    plt.xlabel('Female Share of Researchers')
+    plt.ylabel('Spending Efficiency [MIO € / 1 Researcher FTE]')
 
-femshare_calc = df.groupby(
-    ['Country', 'Year'])[['FTE Researcher', 'FTE Researcher Fem']].apply(
-    lambda x: pd.Series({
-        'FemShare': x['FTE Researcher Fem'].sum() / (x['FTE Researcher'].sum())
-            if not (x['FTE Researcher Fem'].isna().any() or x['FTE Researcher'].isna().any()) 
-           else float('nan')})).reset_index()
-print(f"> FemShare: {femshare_calc['FemShare'].isnull().sum()*100/len(femshare_calc['FemShare']):.0f}% of entries were coerced to NaN.")
-df = df.merge(femshare_calc, on=['Country', 'Year'], how = 'left')
+    print("\n Correlation Test Results:")
+    print("• Testing normality and calculating correlations by country")
 
-g = sns.relplot(kind = 'line', x = 'Year', y = 'FemShare', data = df,
-                hue = 'Country', errorbar = None)
-sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-g.set(title = 'Annual Female Share of Researchers (FTEs)', 
-      xlabel = "Calendar year", ylabel = "Female Share of Researchers")
-g.figure.set_size_inches(10,4)
-plt.savefig('../figures/Fig3.1 Annual Female Share of Researchers.png')
-print('> Saving Fig3.1 Annual Female Share of Researchers')
-print('\n')
+    for c in new_df['Country'].unique():
+        x = new_df[new_df['Country'] == c]['FemShare']
+        y = new_df[new_df['Country'] == c]['SpendEff']
 
-# A2.2 Relationship between Spending Efficiency and Female Share of Researcher FTEs
-print('--- O3.2 Relationship between Spending Efficiency and Female Share of Researcher FTEs calculations ...\n')
+        sh_x = shapiro(x)
+        sh_y = shapiro(y)
 
-new_df = df[df['FemShare'].notna() & df['SpendEff'].notna()]
-fig = plt.figure()
-fig.set_size_inches(5.35, 5)
-sns.scatterplot(data = new_df, x = 'FemShare', y = 'SpendEff', hue = 'Country')
-plt.title('Female Share vs. Spending Efficiency')
-plt.xlabel('Female Share of Researchers')
-plt.ylabel('Spending Efficiency [MIO € / 1 Researcher FTE]')
+        ax = plt.gca()
+        ax.legend(title = 'Country', bbox_to_anchor = (1.35, 0.99))
+        m, b = np.polyfit(x, y, 1)
+        X_plot = np.linspace(ax.get_xlim()[0]+0.05, ax.get_xlim()[1]-0.05, 100)
 
-print('> Correlation test (CT): coefficients and statistical significance\n')
+        if (sh_x[1] <= 0.05) or (sh_y[1]  <= 0.05):
+            stat, p = sp.stats.spearmanr(a = x, b = y)
+            print(f"  - {c}: Normality violation - Spearman's r = {stat:.2f}, p = {p:.2E}")
+            if p <= 0.05: 
+                plt.plot(X_plot, m*X_plot + b, '-')
+            else: 
+                plt.plot(X_plot, m*X_plot + b, ':')
+        else:  
+            stat, p = sp.stats.pearsonr(x = x, y = y)
+            print(f"  - {c}: Normal distribution - Pearson's r = {stat:.2f}, p = {p:.2E}")
+            if p <= 0.05: 
+                plt.plot(X_plot, m*X_plot + b, '-')
+            else: 
+                plt.plot(X_plot, m*X_plot + b, ':')    
 
-for c in new_df['Country'].unique():
-    x = new_df[new_df['Country'] == c]['FemShare']
-    y = new_df[new_df['Country'] == c]['SpendEff']
+    plt.savefig('../figures/Fig3.2 Female Share vs Spending Efficiency.png')
+    print("✓ Saved: Fig3.2 Female Share vs Spending Efficiency")
+    print()
+    
+    return df
 
-    sh_x = shapiro(x)
-    sh_y = shapiro(y)
+def calculate_growth_rates(df):
+    print("---- O3.3 Growth Rate analysis (2009-2021):")
 
-    ax = plt.gca()
-    ax.legend(title = 'Country', bbox_to_anchor = (1.35, 0.99))
-    m, b = np.polyfit(x, y, 1)
-    X_plot = np.linspace(ax.get_xlim()[0]+0.05, ax.get_xlim()[1]-0.05, 100)
+    print("• Calculating Researcher FTE CAGR")
+    res_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
+        ['Country', 'Year']).groupby(
+        ['Country'])[['FTE Researcher']].apply(
+        lambda x: pd.Series({
+            'Res CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
+                  if not (x.iloc[0,].isna().any())
+                  else float('nan')})).reset_index()
+    nan_pct = res_cagr_calc['Res CAGR 2009_2021'].isnull().sum()*100/len(res_cagr_calc['Res CAGR 2009_2021'])
+    print(f"  - Res CAGR: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(res_cagr_calc, on=['Country'], how = 'left')
 
-    if (sh_x[1] <= 0.05) or (sh_y[1]  <= 0.05):
-        stat, p = sp.stats.spearmanr(a = x, b = y)
-        print(f"{c}: norm. violation - Spearman's CT: stat = {stat:.2f}, p = {p:.2E}")
-        if p <= 0.05: plt.plot(X_plot, m*X_plot + b, '-')
-        else: plt.plot(X_plot, m*X_plot + b, ':')
+    print("• Calculating Female Researcher FTE CAGR")
+    fem_res_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
+        ['Country', 'Year']).groupby(
+        ['Country'])[['FTE Researcher Fem']].apply(
+        lambda x: pd.Series({
+            'Fem Res CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
+                  if not (x.iloc[0,].isna().any())
+                  else float('nan')})).reset_index()
+    nan_pct = fem_res_cagr_calc['Fem Res CAGR 2009_2021'].isnull().sum()*100/len(fem_res_cagr_calc['Fem Res CAGR 2009_2021'])
+    print(f"  - Fem Res CAGR: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(fem_res_cagr_calc, on=['Country'], how = 'left')
 
-    else:  
-        stat, p = sp.stats.pearsonr(x = x, y = y)
-        print(f"{c}: norm. - Pearson's CT: stat = {stat:.2f}, p = {p:.2E}")
-        if p <= 0.05: plt.plot(X_plot, m*X_plot + b, '-')
-        else: plt.plot(X_plot, m*X_plot + b, ':')    
+    print("• Calculating Spending Efficiency CAGR")
+    cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
+        ['Country', 'Year']).groupby(
+        ['Country'])[['SpendEff']].apply(
+        lambda x: pd.Series({
+            'SpendEff CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
+                  if not (x.iloc[0,].isna().any())
+                  else float('nan')})).reset_index()
+    nan_pct = cagr_calc['SpendEff CAGR 2009_2021'].isnull().sum()*100/len(cagr_calc['SpendEff CAGR 2009_2021'])
+    print(f"  - SpendEff CAGR: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(cagr_calc, on=['Country'], how = 'left')
 
-print('\n')
-plt.savefig('../figures/Fig3.2 Female Share vs Spending Efficiency.png')
-print('> Saving Fig3.2 Female Share vs Spending Efficiency')
-print('\n')
+    print("• Calculating Female Share CAGR")
+    femshare_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
+        ['Country', 'Year']).groupby(
+        ['Country'])[['FemShare']].apply(
+        lambda x: pd.Series({
+            'FemShare CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
+                  if not (x.iloc[0,].isna().any())
+                  else float('nan')})).reset_index()
+    nan_pct = femshare_cagr_calc['FemShare CAGR 2009_2021'].isnull().sum()*100/len(femshare_cagr_calc['FemShare CAGR 2009_2021'])
+    print(f"  - FemShare CAGR: {nan_pct:.0f}% values converted to NaN")
+    df = df.merge(femshare_cagr_calc, on=['Country'], how = 'left')
 
-# A2.3 Growth rates
-print('--- O3.3 Growth rates calculations ...\n')
+    print("• Preparing CAGR data for visualization")
+    df_cagr = df.melt(id_vars = ['Country','geo', 'Year'],
+                      value_vars = df.columns[11:15], 
+                      var_name = 'CAGR types', 
+                      value_name = 'CAGR value').drop_duplicates()
+    df_cagr = df_cagr[['Country', 'geo', 'Year', 'CAGR types', 'CAGR value']]
 
-res_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
-    ['Country', 'Year']).groupby(
-    ['Country'])[['FTE Researcher']].apply(
-    lambda x: pd.Series({
-        'Res CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
-              if not (x.iloc[0,].isna().any())
-              else float('nan')})).reset_index()
-print(f"> Res CAGR 2009_2021: {res_cagr_calc['Res CAGR 2009_2021'].isnull().sum()*100/len(res_cagr_calc['Res CAGR 2009_2021']):.0f}% of entries were coerced to NaN.")
-df = df.merge(res_cagr_calc, on=['Country'], how = 'left')
+    g = sns.catplot(kind = 'bar', x = 'Country', y = 'CAGR value', hue = 'CAGR types', data = df_cagr)
+    g.set(title = 'Compound Annual Growth Rates between 2009 and 2021', xlabel = "Country", ylabel = "CAGRs")
+    sns.move_legend(g, "upper right", bbox_to_anchor = (0.95, 0.95), ncol = 1)
+    g.figure.set_size_inches(10,4)
+    plt.savefig('../figures/Fig3.3 CAGRs between 2009 and 2021.png')
+    print("✓ Saved: Fig3.3 CAGRs between 2009 and 2021")
+    print()
+    
+    return df, df_cagr
 
-fem_res_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
-    ['Country', 'Year']).groupby(
-    ['Country'])[['FTE Researcher Fem']].apply(
-    lambda x: pd.Series({
-        'Fem Res CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
-              if not (x.iloc[0,].isna().any())
-              else float('nan')})).reset_index()
-print(f"> Fem Res CAGR 2009_2021: {fem_res_cagr_calc['Fem Res CAGR 2009_2021'].isnull().sum()*100/len(fem_res_cagr_calc['Fem Res CAGR 2009_2021']):.0f}% of entries were coerced to NaN.")
-df = df.merge(fem_res_cagr_calc, on=['Country'], how = 'left')
+def display_metadata(mdf):
+    print("Source metadata:")
+    print("• Current analysis was prepared based on the following information sources:")
+    
+    for i, row in mdf.iterrows():
+        print(f"  {i+1}. {mdf.dataset_id[i]} dataset provided by: {mdf.dataset_source[i]}")
+        print(f"     Last updated: {mdf.dataset_last_updated[i]}")
+    print()
 
-cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
-    ['Country', 'Year']).groupby(
-    ['Country'])[['SpendEff']].apply(
-    lambda x: pd.Series({
-        'SpendEff CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
-              if not (x.iloc[0,].isna().any())
-              else float('nan')})).reset_index()
-print(f"> SpendEff CAGR 2009_2021: {cagr_calc['SpendEff CAGR 2009_2021'].isnull().sum()*100/len(cagr_calc['SpendEff CAGR 2009_2021']):.0f}% of entries were coerced to NaN.")
-df = df.merge(cagr_calc, on=['Country'], how = 'left')
+def save_preprocessed_datasets(df, df_cagr):
+    print("Saving analysis results:")
+    
+    df.to_csv('../data/analysis_data.csv', encoding='utf-8', index = False)
+    print(f"✓ Main analysis dataset saved: ../data/analysis_data.csv ({df.shape[0]:,} rows)")
+    
+    df_cagr.to_csv('../data/cagr_analysis_data.csv', encoding='utf-8', index = False)
+    print(f"✓ CAGR analysis dataset saved: ../data/cagr_analysis_data.csv ({df_cagr.shape[0]:,} rows)")
 
-femshare_cagr_calc = df.query("(Year >= '2009') and (Year <= '2021')").sort_values(
-    ['Country', 'Year']).groupby(
-    ['Country'])[['FemShare']].apply(
-    lambda x: pd.Series({
-        'FemShare CAGR 2009_2021': ((x.iloc[-1,].item() / x.iloc[0,].item())**(1/13) - 1)
-              if not (x.iloc[0,].isna().any())
-              else float('nan')})).reset_index()
-print(f"> FemShare CAGR 2009_2021: {femshare_cagr_calc['FemShare CAGR 2009_2021'].isnull().sum()*100/len(femshare_cagr_calc['FemShare CAGR 2009_2021']):.0f}% of entries were coerced to NaN.")
-df = df.merge(femshare_cagr_calc, on=['Country'], how = 'left')
+def main():
+    print("=" * 60)
+    print("Efficiency and Diversity of R&D in Knowledge‑Intensive Services (2005‑2023)")
+    print("Data Analysis Pipeline")
+    print("=" * 60)
+    print()
+    
+    # Phase 1: Loading datasets
+    df, mdf, euefta = load_datasets()
+    
+    # Phase 2: Filtering and renaming variables
+    df = filter_and_rename_variables(df, euefta)
+    
+    # Phase 3: Analyzing missing data
+    df = review_missing_data(df)
+    
+    # Phase 4: Calculating efficiency metrics
+    df = calculate_efficiency_metrics(df)
+    
+    # Phase 5: Analyzing female researchers
+    df = calculate_female_share(df)
+    
+    # Phase 6: Correlation analysis
+    df = calculate_correlations(df)
+    
+    # Phase 7: Growth rate analysis
+    df, df_cagr = calculate_growth_rates(df)
+    
+    # Phase 8: Display data sources
+    display_metadata(mdf)
+    
+    # Phase 9: Save results
+    save_preprocessed_datasets(df, df_cagr)
 
-df_cagr = df.melt(id_vars = ['Country','geo', 'Year'],
-                  value_vars = df.columns[11:15], 
-                  var_name = 'CAGR types', 
-                  value_name = 'CAGR value').drop_duplicates()
-df_cagr = df_cagr[['Country', 'geo', 'Year', 'CAGR types', 'CAGR value']]
-
-g = sns.catplot(kind = 'bar', x = 'Country', y = 'CAGR value', hue = 'CAGR types', data = df_cagr)
-g.set(title = 'Compound Annual Growth Rates between 2009 and 2021', xlabel = "Country", ylabel = "CAGRs")
-sns.move_legend(g, "upper right", bbox_to_anchor = (0.95, 0.95), ncol = 1)
-g.figure.set_size_inches(10,4)
-plt.savefig('../figures/Fig3.3 CAGRs between 2009 and 2021.png')
-print('> Saving Fig3.3 CAGRs between 2009 and 2021')
-print('\n')
-
-print('--- Current analysis was prepared based on the following information sources:')
-
-for i, row in mdf.iterrows():
-    print(f"{i+1}: {mdf.dataset_id[i]} dataset provided by: {mdf.dataset_source[i]}, last updated: {mdf.dataset_last_updated[i]}")
-
-print('\n')
-df.to_csv('../data/analysis_data.csv', encoding='utf-8', index = False)
-print('Final dataset was saved into \'../data/analysis_data.csv\'.')
-print('\n')
-df_cagr.to_csv('../data/cagr_analysis_data.csv', encoding='utf-8', index = False)
-print('Final cagr dataset was saved into \'../data/cagr_analysis_data.csv\'.')
+if __name__ == "__main__":
+    main()

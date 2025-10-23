@@ -7531,11 +7531,11 @@ a.anchor-link {
 </ul>
 <p><strong>Objectives:</strong></p>
 <ul>
-<li><p>O1 Extract datasets and metadata from the above-mentioned sources.</p>
+<li><p>O1 Extract Eurostat datasets and metadata.</p>
 </li>
-<li><p>O2 Pre-process the datasets to unify variable names.</p>
+<li><p>O2 Pre-process the datasets: clean and transform datasets, unify variable names.</p>
 </li>
-<li><p>O3 Merge datasets and save in the .csv format.</p>
+<li><p>O3 Merge datasets and save them in the .csv format.</p>
 </li>
 </ul>
 </div>
@@ -7598,11 +7598,8 @@ a.anchor-link {
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyjstat</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyjstat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </pre></div>
@@ -7617,7 +7614,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="O1-Data-extraction-using-available-API">O1 Data extraction using available API<a class="anchor-link" href="#O1-Data-extraction-using-available-API">¶</a></h2>
+<h2 id="O1-Data-Scraping-Pipeline">O1 Data Scraping Pipeline<a class="anchor-link" href="#O1-Data-Scraping-Pipeline">¶</a></h2>
 </div>
 </div>
 </div>
@@ -7628,7 +7625,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="O1.1-Datasets">O1.1 Datasets<a class="anchor-link" href="#O1.1-Datasets">¶</a></h3>
+<h3 id="O1.1-Extracting-Eurostat-datasets">O1.1 Extracting Eurostat datasets<a class="anchor-link" href="#O1.1-Extracting-Eurostat-datasets">¶</a></h3><p>Extracting three source datasets from Eurostat using API calls and data transformation techniques.</p>
 </div>
 </div>
 </div>
@@ -7639,7 +7636,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Eurostat provides a possibility to extract JSON files of both datasets. The following code extracts the data and transforms a JSON format into a pandas dataframe.</p>
+<p>Eurostat provides API access to extract JSON-formatted datasets. The following code extracts expenditure and personnel data, transforming JSON format into pandas DataFrames for further processing.</p>
 </div>
 </div>
 </div>
@@ -7651,15 +7648,14 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_exp2</span> <span class="o">=</span> <span class="s2">"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_exp2?lang=en"</span>
-
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting expenditure data (htec_sti_exp2)"</span><span class="p">)</span>
+<span class="n">url_exp2</span> <span class="o">=</span> <span class="s2">"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_exp2?lang=en"</span>
 <span class="n">response_exp2</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_exp2</span><span class="p">)</span>
 <span class="n">response_exp2</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-
 <span class="n">data_exp2</span> <span class="o">=</span> <span class="n">response_exp2</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 <span class="n">data_exp2</span> <span class="o">=</span> <span class="n">pyjstat</span><span class="o">.</span><span class="n">from_json_stat</span><span class="p">(</span><span class="n">data_exp2</span><span class="p">,</span> <span class="n">naming</span> <span class="o">=</span> <span class="s1">'id'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data from '</span><span class="p">,</span> <span class="n">url_exp2</span><span class="p">,</span><span class="s1">' was extracted.'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Expenditure data extracted: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_exp2</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> records"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Sample data: </span><span class="si">{</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -7673,7 +7669,9 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Data from  https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_exp2?lang=en  was extracted.
+<pre>• Extracting expenditure data (htec_sti_exp2)
+✓ Expenditure data extracted: 11,970 records
+  Sample data: (11970, 6)
   freq     unit nace_r2        geo  time       value
 0    A  MIO_EUR   TOTAL  EU27_2020  2005  107641.827
 1    A  MIO_EUR   TOTAL  EU27_2020  2006  116175.251
@@ -7693,15 +7691,14 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_pers2</span> <span class="o">=</span> <span class="s2">"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_pers2?lang=en"</span>
-
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting personnel data (htec_sti_pers2)"</span><span class="p">)</span>
+<span class="n">url_pers2</span> <span class="o">=</span> <span class="s2">"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_pers2?lang=en"</span>
 <span class="n">response_pers2</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_pers2</span><span class="p">)</span>
 <span class="n">response_pers2</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-
 <span class="n">data_pers2</span> <span class="o">=</span> <span class="n">response_pers2</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 <span class="n">data_pers2</span> <span class="o">=</span> <span class="n">pyjstat</span><span class="o">.</span><span class="n">from_json_stat</span><span class="p">(</span><span class="n">data_pers2</span><span class="p">,</span> <span class="n">naming</span> <span class="o">=</span> <span class="s1">'id'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data from '</span><span class="p">,</span> <span class="n">url_pers2</span><span class="p">,</span><span class="s1">' was extracted.'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Personnel data extracted: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_pers2</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> records"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Sample data: </span><span class="si">{</span><span class="n">data_pers2</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data_pers2</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -7715,7 +7712,9 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Data from  https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/htec_sti_pers2?lang=en  was extracted.
+<pre>• Extracting personnel data (htec_sti_pers2)
+✓ Personnel data extracted: 23,940 records
+  Sample data: (23940, 7)
   freq nace_r2 unit prof_pos        geo  time      value
 0    A   TOTAL  FTE    TOTAL  EU27_2020  2005   982304.1
 1    A   TOTAL  FTE    TOTAL  EU27_2020  2006  1036105.4
@@ -7734,9 +7733,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>The last dataset was embedded in a different type of webpage, and the filtering must have been done prior to downloading.
-The pre-filtered dataset was downloaded in the form of a <em>.csv</em> file (<em>rd_p_bempoccr2.csv</em>).
-The dataset was transformed after loading to match the structure of the remaining two datasets.</p>
+<p>The female researcher dataset requires pre-filtering and is available as a CSV file. The dataset is transformed after loading to match the structure of the other two datasets for consistent processing.</p>
 </div>
 </div>
 </div>
@@ -7748,9 +7745,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_fem2</span> <span class="o">=</span> <span class="s2">"https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B</span><span class="si">%22f</span><span class="s2">req</span><span class="si">%22%</span><span class="s2">3A%5B%22A</span><span class="si">%22%</span><span class="s2">5D%2C%22nace_r2</span><span class="si">%22%</span><span class="s2">3A%5B</span><span class="si">%22G</span><span class="s2">-N</span><span class="si">%22%</span><span class="s2">5D%7D&amp;tab=table"</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting female researcher data"</span><span class="p">)</span>
+<span class="n">url_fem2</span> <span class="o">=</span> <span class="s2">"https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B</span><span class="si">%22f</span><span class="s2">req</span><span class="si">%22%</span><span class="s2">3A%5B%22A</span><span class="si">%22%</span><span class="s2">5D%2C%22nace_r2</span><span class="si">%22%</span><span class="s2">3A%5B</span><span class="si">%22G</span><span class="s2">-N</span><span class="si">%22%</span><span class="s2">5D%7D&amp;tab=table"</span>
 <span class="n">data_fem2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'../data/rd_p_bempoccr2.csv'</span><span class="p">)</span>
 
+<span class="c1"># Process column names</span>
 <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'Annual'</span><span class="p">):</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\.([A-Z]{2,3})\)$'</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
@@ -7760,6 +7759,7 @@ The dataset was transformed after loading to match the structure of the remainin
           <span class="n">geo</span> <span class="o">=</span> <span class="s1">'UU'</span>
         <span class="n">data_fem2</span> <span class="o">=</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">geo</span><span class="p">})</span>
         
+<span class="c1"># Reshape data</span>
 <span class="n">data_fem2</span> <span class="o">=</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'period'</span><span class="p">],</span> 
                            <span class="n">value_vars</span> <span class="o">=</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">274</span><span class="p">],</span> 
                            <span class="n">var_name</span> <span class="o">=</span> <span class="s1">'geo'</span><span class="p">,</span> 
@@ -7768,8 +7768,9 @@ The dataset was transformed after loading to match the structure of the remainin
 <span class="n">data_fem2</span> <span class="o">=</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'period'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">})</span>
 <span class="n">data_fem2</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_fem2</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 <span class="n">data_fem2</span><span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'G-N'</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data from '</span><span class="p">,</span> <span class="n">url_fem2</span><span class="p">,</span><span class="s1">' was downloaded.'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Female researcher data processed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_fem2</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> records"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Sample data: </span><span class="si">{</span><span class="n">data_fem2</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data_fem2</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -7783,7 +7784,10 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Data from  https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B%22freq%22%3A%5B%22A%22%5D%2C%22nace_r2%22%3A%5B%22G-N%22%5D%7D&amp;tab=table  was downloaded.
+<pre>• Extracting female researcher data
+✓ Female researcher data processed: 4,769 records
+  Sample data: (4769, 4)
+
    time geo  fem2_FTE_RSE nace_r2
 0  2005  AT           NaN     G-N
 1  2006  AT         999.2     G-N
@@ -7802,7 +7806,7 @@ The dataset was transformed after loading to match the structure of the remainin
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="O1.2-Metadata">O1.2 Metadata<a class="anchor-link" href="#O1.2-Metadata">¶</a></h3>
+<h3 id="O1.2-Extracting-dataset-metadata">O1.2 Extracting dataset metadata<a class="anchor-link" href="#O1.2-Extracting-dataset-metadata">¶</a></h3><p>Extract dataset metadata including last update timestamps, data sources, titles, and dataset identifiers from source webpages for documentation and traceability.</p>
 </div>
 </div>
 </div>
@@ -7813,7 +7817,7 @@ The dataset was transformed after loading to match the structure of the remainin
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Each source webpage includes useful metadata that is updated upon the data refresh and can be used for reporting. The following code scraps useful metadata for both datasets: the datetime of the last update, the source, the ID and the long title.</p>
+<p>Each source webpage contains metadata that is automatically updated upon data refresh.</p>
 </div>
 </div>
 </div>
@@ -7822,21 +7826,23 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_exp2_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table'</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'htec_sti_exp2 source webpage: '</span><span class="p">,</span> <span class="n">url_exp2_meta</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting expenditure dataset metadata"</span><span class="p">)</span>
+<span class="n">url_exp2_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table'</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Source: </span><span class="si">{</span><span class="n">url_exp2_meta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
 <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
 <span class="n">driver_exp2</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">options</span> <span class="o">=</span> <span class="n">chrome_options</span><span class="p">)</span>
 <span class="n">driver_exp2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_exp2_meta</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; opened'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Webpage opened"</span><span class="p">)</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> 
 <span class="n">r</span> <span class="o">=</span> <span class="n">driver_exp2</span><span class="o">.</span><span class="n">page_source</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; extracted'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Page source extracted"</span><span class="p">)</span>
 <span class="n">soup_exp2</span> <span class="o">=</span> <span class="n">bs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
 <span class="n">driver_exp2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; closed'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Browser closed"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7849,10 +7855,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>htec_sti_exp2 source webpage:  https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table
-&gt;&gt;&gt; opened
-&gt;&gt;&gt; extracted
-&gt;&gt;&gt; closed
+<pre>• Extracting expenditure dataset metadata
+  Source: https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table
+  • Webpage opened
+  • Page source extracted
+  • Browser closed
 </pre>
 </div>
 </div>
@@ -7863,30 +7870,28 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'htec_sti_exp2 dataset metadata:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
 <span class="n">body</span> <span class="o">=</span> <span class="n">soup_exp2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'body'</span><span class="p">)</span>
-
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"last update"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"infobox-text-data"</span><span class="p">)</span>
 <span class="n">exp2_date</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_last_updated: '</span><span class="p">,</span> <span class="n">exp2_date</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Last updated: </span><span class="si">{</span><span class="n">exp2_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"Source of data:"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"span"</span><span class="p">)</span>
 <span class="n">exp2_source</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_source: '</span><span class="p">,</span> <span class="n">exp2_source</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Source: </span><span class="si">{</span><span class="n">exp2_source</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">exp2_title</span> <span class="o">=</span> <span class="n">soup_exp2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"ecl-page-header__title"</span><span class="p">)</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_title: '</span><span class="p">,</span> <span class="n">exp2_title</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Title: </span><span class="si">{</span><span class="n">exp2_title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"Online data code:"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"infobox-text-data"</span><span class="p">)</span>
 <span class="n">exp2_id</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_id: '</span><span class="p">,</span> <span class="n">exp2_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Dataset ID: </span><span class="si">{</span><span class="n">exp2_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">exp2_meta</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp2_id</span><span class="p">,</span> <span class="n">exp2_source</span><span class="p">,</span> <span class="n">exp2_title</span><span class="p">,</span> <span class="n">exp2_date</span><span class="p">]</span>
 </pre></div>
@@ -7901,12 +7906,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>htec_sti_exp2 dataset metadata:
-
-	 dataset_last_updated:  29/09/2025 23:00
-	 dataset_source:  Eurostat
-	 dataset_title:  Business enterprise R&amp;D expenditure in high-tech sectors by NACE Rev. 2
-	 dataset_id:  htec_sti_exp2
+<pre>  • Parsing metadata fields
+    - Last updated: 29/09/2025 23:00
+    - Source: Eurostat
+    - Title: Business enterprise R&amp;D expenditure in high-tech sectors by NACE Rev. 2
+    - Dataset ID: htec_sti_exp2
 </pre>
 </div>
 </div>
@@ -7917,21 +7921,23 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_pers2_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/databrowser/view/htec_sti_pers2/default/table'</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'htec_sti_pers2 source webpage: '</span><span class="p">,</span> <span class="n">url_pers2_meta</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting personnel dataset metadata"</span><span class="p">)</span>
+<span class="n">url_pers2_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/databrowser/view/htec_sti_pers2/default/table'</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Source: </span><span class="si">{</span><span class="n">url_pers2_meta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
 <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
 <span class="n">driver_pers2</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">options</span> <span class="o">=</span> <span class="n">chrome_options</span><span class="p">)</span>
 <span class="n">driver_pers2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_pers2_meta</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; opened'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Webpage opened"</span><span class="p">)</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> 
 <span class="n">r</span> <span class="o">=</span> <span class="n">driver_pers2</span><span class="o">.</span><span class="n">page_source</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; extracted'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Page source extracted"</span><span class="p">)</span>
 <span class="n">soup_pers2</span> <span class="o">=</span> <span class="n">bs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
 <span class="n">driver_pers2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; closed'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Browser closed"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7944,10 +7950,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>htec_sti_pers2 source webpage:  https://ec.europa.eu/eurostat/databrowser/view/htec_sti_pers2/default/table
-&gt;&gt;&gt; opened
-&gt;&gt;&gt; extracted
-&gt;&gt;&gt; closed
+<pre>• Extracting personnel dataset metadata
+  Source: https://ec.europa.eu/eurostat/databrowser/view/htec_sti_pers2/default/table
+  • Webpage opened
+  • Page source extracted
+  • Browser closed
 </pre>
 </div>
 </div>
@@ -7958,30 +7965,28 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'htec_sti_pers2 dataset metadata:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
 <span class="n">body</span> <span class="o">=</span> <span class="n">soup_pers2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'body'</span><span class="p">)</span>
-
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"last update"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"infobox-text-data"</span><span class="p">)</span>
 <span class="n">pers2_date</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_last_updated: '</span><span class="p">,</span> <span class="n">pers2_date</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Last updated: </span><span class="si">{</span><span class="n">pers2_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"Source of data:"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"span"</span><span class="p">)</span>
 <span class="n">pers2_source</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_source: '</span><span class="p">,</span> <span class="n">pers2_source</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Source: </span><span class="si">{</span><span class="n">pers2_source</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">pers2_title</span> <span class="o">=</span> <span class="n">soup_pers2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"ecl-page-header__title"</span><span class="p">)</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_title: '</span><span class="p">,</span> <span class="n">pers2_title</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Title: </span><span class="si">{</span><span class="n">pers2_title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">string</span> <span class="o">=</span> <span class="s2">"Online data code:"</span><span class="p">)</span>
 <span class="n">tag</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"infobox-text-data"</span><span class="p">)</span>
 <span class="n">pers2_id</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_id: '</span><span class="p">,</span> <span class="n">pers2_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Dataset ID: </span><span class="si">{</span><span class="n">pers2_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">pers2_meta</span> <span class="o">=</span> <span class="p">[</span><span class="n">pers2_id</span><span class="p">,</span> <span class="n">pers2_source</span><span class="p">,</span> <span class="n">pers2_title</span><span class="p">,</span> <span class="n">pers2_date</span><span class="p">]</span>
 </pre></div>
@@ -7996,12 +8001,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>htec_sti_pers2 dataset metadata:
-
-	 dataset_last_updated:  29/09/2025 23:00
-	 dataset_source:  Eurostat
-	 dataset_title:  Business enterprise R&amp;D personnel in high-tech sectors by NACE Rev. 2
-	 dataset_id:  htec_sti_pers2
+<pre>  • Parsing metadata fields
+    - Last updated: 29/09/2025 23:00
+    - Source: Eurostat
+    - Title: Business enterprise R&amp;D personnel in high-tech sectors by NACE Rev. 2
+    - Dataset ID: htec_sti_pers2
 </pre>
 </div>
 </div>
@@ -8012,21 +8016,23 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">url_fem2_meta</span> <span class="o">=</span> <span class="s1">'https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B</span><span class="si">%22f</span><span class="s1">req</span><span class="si">%22%</span><span class="s1">3A%5B%22A</span><span class="si">%22%</span><span class="s1">5D%2C%22nace_r2</span><span class="si">%22%</span><span class="s1">3A%5B</span><span class="si">%22G</span><span class="s1">-N</span><span class="si">%22%</span><span class="s1">5D%7D&amp;tab=table'</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'rd_p_bempoccr2 source webpage: '</span><span class="p">,</span> <span class="n">url_fem2_meta</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting female researcher dataset metadata"</span><span class="p">)</span>
+<span class="n">url_fem2_meta</span> <span class="o">=</span> <span class="s1">'https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B</span><span class="si">%22f</span><span class="s1">req</span><span class="si">%22%</span><span class="s1">3A%5B%22A</span><span class="si">%22%</span><span class="s1">5D%2C%22nace_r2</span><span class="si">%22%</span><span class="s1">3A%5B</span><span class="si">%22G</span><span class="s1">-N</span><span class="si">%22%</span><span class="s1">5D%7D&amp;tab=table'</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Source: </span><span class="si">{</span><span class="n">url_fem2_meta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
 <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
 <span class="n">driver_fem2</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">options</span> <span class="o">=</span> <span class="n">chrome_options</span><span class="p">)</span>
 <span class="n">driver_fem2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_fem2_meta</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; opened'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Webpage opened"</span><span class="p">)</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> 
 <span class="n">r</span> <span class="o">=</span> <span class="n">driver_fem2</span><span class="o">.</span><span class="n">page_source</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; extracted'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Page source extracted"</span><span class="p">)</span>
 <span class="n">soup_fem2</span> <span class="o">=</span> <span class="n">bs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
 <span class="n">driver_fem2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; closed'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Browser closed"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8039,10 +8045,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>rd_p_bempoccr2 source webpage:  https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B%22freq%22%3A%5B%22A%22%5D%2C%22nace_r2%22%3A%5B%22G-N%22%5D%7D&amp;tab=table
-&gt;&gt;&gt; opened
-&gt;&gt;&gt; extracted
-&gt;&gt;&gt; closed
+<pre>• Extracting female researcher dataset metadata
+  Source: https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B%22freq%22%3A%5B%22A%22%5D%2C%22nace_r2%22%3A%5B%22G-N%22%5D%7D&amp;tab=table
+  • Webpage opened
+  • Page source extracted
+  • Browser closed
 </pre>
 </div>
 </div>
@@ -8053,40 +8060,39 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'rd_p_bempoccr2 dataset metadata:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
 <span class="n">body</span> <span class="o">=</span> <span class="n">soup_fem2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'body'</span><span class="p">)</span>
-
 <span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"my-8"</span><span class="p">)</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'on(\w+\s+\d+,\s+\d+)\s+\((\d+:\d+\s+[AP]M)\)'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
     <span class="n">date_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">time_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    
     <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"%B </span><span class="si">%d</span><span class="s2">, %Y %I:%M %p"</span><span class="p">)</span>
     <span class="n">fem2_date</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M"</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_last_updated: '</span><span class="p">,</span> <span class="n">fem2_date</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span> <span class="n">fem2_date</span> <span class="o">=</span> <span class="s1">'None'</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Last updated: </span><span class="si">{</span><span class="n">fem2_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span> 
+    <span class="n">fem2_date</span> <span class="o">=</span> <span class="s1">'None'</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Last updated: </span><span class="si">{</span><span class="n">fem2_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"container"</span><span class="p">)</span>
 <span class="n">span</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"hover:text-foreground transition-colors"</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-muted-foreground link"</span><span class="p">)</span>
 <span class="n">fem2_source</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_source: '</span><span class="p">,</span> <span class="n">fem2_source</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Source: </span><span class="si">{</span><span class="n">fem2_source</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"container"</span><span class="p">)</span>
 <span class="n">h1</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-3xl mb-10"</span><span class="p">)</span>
 <span class="n">spans</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'span'</span><span class="p">)</span>
 <span class="n">fem2_title</span> <span class="o">=</span> <span class="n">spans</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_title: '</span><span class="p">,</span> <span class="n">fem2_title</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Title: </span><span class="si">{</span><span class="n">fem2_title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">marker</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-muted-foreground"</span><span class="p">)</span>
 <span class="n">fem2_id</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1"> dataset_id: '</span><span class="p">,</span> <span class="n">fem2_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Dataset ID: </span><span class="si">{</span><span class="n">fem2_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">fem2_meta</span> <span class="o">=</span> <span class="p">[</span><span class="n">fem2_id</span><span class="p">,</span> <span class="n">fem2_source</span><span class="p">,</span> <span class="n">fem2_title</span><span class="p">,</span> <span class="n">fem2_date</span><span class="p">]</span>
 </pre></div>
@@ -8101,12 +8107,11 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>rd_p_bempoccr2 dataset metadata:
-
-	 dataset_last_updated:  02/05/2025 11:00
-	 dataset_source:  Eurostat
-	 dataset_title:  R&amp;D personnel and researchers in business enterprise sector by NACE Rev. 2 activity and sex
-	 dataset_id:  rd_​p_​bempoccr2
+<pre>  • Parsing metadata fields
+    - Last updated: 02/05/2025 11:00
+    - Source: Eurostat
+    - Title: R&amp;D personnel and researchers in business enterprise sector by NACE Rev. 2 activity and sex
+    - Dataset ID: rd_​p_​bempoccr2
 </pre>
 </div>
 </div>
@@ -8117,12 +8122,14 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">exp2_meta</span><span class="p">,</span><span class="n">pers2_meta</span><span class="p">,</span><span class="n">fem2_meta</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'dataset_id'</span><span class="p">,</span> <span class="s1">'dataset_source'</span><span class="p">,</span> <span class="s1">'dataset_title'</span><span class="p">,</span> <span class="s1">'dataset_last_updated'</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Metadata dataset was created:'</span><span class="p">)</span>
-<span class="n">meta</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Creating metadata dataset"</span><span class="p">)</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">exp2_meta</span><span class="p">,</span> <span class="n">pers2_meta</span><span class="p">,</span> <span class="n">fem2_meta</span><span class="p">],</span> 
+                   <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'dataset_id'</span><span class="p">,</span> <span class="s1">'dataset_source'</span><span class="p">,</span> <span class="s1">'dataset_title'</span><span class="p">,</span> <span class="s1">'dataset_last_updated'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Metadata dataset created: </span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> datasets"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8135,62 +8142,18 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Metadata dataset was created:
+<pre>• Creating metadata dataset
+✓ Metadata dataset created: 3 datasets
+         dataset_id dataset_source  \
+0     htec_sti_exp2       Eurostat   
+1    htec_sti_pers2       Eurostat   
+2  rd_​p_​bempoccr2       Eurostat   
+
+                                       dataset_title dataset_last_updated  
+0  Business enterprise R&amp;D expenditure in high-te...     29/09/2025 23:00  
+1  Business enterprise R&amp;D personnel in high-tech...     29/09/2025 23:00  
+2  R&amp;D personnel and researchers in business ente...     02/05/2025 11:00  
 </pre>
-</div>
-</div>
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>dataset_id</th>
-<th>dataset_source</th>
-<th>dataset_title</th>
-<th>dataset_last_updated</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>htec_sti_exp2</td>
-<td>Eurostat</td>
-<td>Business enterprise R&amp;D expenditure in high-te...</td>
-<td>29/09/2025 23:00</td>
-</tr>
-<tr>
-<th>1</th>
-<td>htec_sti_pers2</td>
-<td>Eurostat</td>
-<td>Business enterprise R&amp;D personnel in high-tech...</td>
-<td>29/09/2025 23:00</td>
-</tr>
-<tr>
-<th>2</th>
-<td>rd_​p_​bempoccr2</td>
-<td>Eurostat</td>
-<td>R&amp;D personnel and researchers in business ente...</td>
-<td>02/05/2025 11:00</td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 </div>
 </div>
@@ -8200,11 +8163,13 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">meta</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_metadata.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Metadata dataset was saved into </span><span class="se">\'</span><span class="s1">../data/scraper_metadata.csv</span><span class="se">\'</span><span class="s1">.'</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving metadata"</span><span class="p">)</span>
+<span class="n">meta</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_metadata.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Metadata saved: ../data/scraper_metadata.csv"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -8217,7 +8182,9 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Metadata dataset was saved into '../data/scraper_metadata.csv'.
+<pre>• Saving metadata
+✓ Metadata saved: ../data/scraper_metadata.csv
+
 </pre>
 </div>
 </div>
@@ -8230,7 +8197,7 @@ The dataset was transformed after loading to match the structure of the remainin
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>List of European + EFTA countries</p>
+<h3 id="O1.3-Extracting-EU-+-EFTA-countries-list">O1.3 Extracting EU + EFTA countries list<a class="anchor-link" href="#O1.3-Extracting-EU-+-EFTA-countries-list">¶</a></h3><p>Extract the list of European Union and European Free Trade Association (EFTA) countries from official Eurostat documentation for filtering.</p>
 </div>
 </div>
 </div>
@@ -8239,21 +8206,22 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">url_countries_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Country_codes'</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'European+EFTA countries source webpage: '</span><span class="p">,</span> <span class="n">url_countries_meta</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"• Source: </span><span class="si">{</span><span class="n">url_countries_meta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
 <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
 <span class="n">driver_co</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">options</span> <span class="o">=</span> <span class="n">chrome_options</span><span class="p">)</span>
 <span class="n">driver_co</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_countries_meta</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; opened'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Webpage opened"</span><span class="p">)</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> 
 <span class="n">r</span> <span class="o">=</span> <span class="n">driver_co</span><span class="o">.</span><span class="n">page_source</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; extracted'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Page source extracted"</span><span class="p">)</span>
 <span class="n">soup_co</span> <span class="o">=</span> <span class="n">bs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
 <span class="n">driver_co</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;&gt;&gt; closed'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  • Browser closed"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8266,10 +8234,10 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>European+EFTA countries source webpage:  https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Country_codes
-&gt;&gt;&gt; opened
-&gt;&gt;&gt; extracted
-&gt;&gt;&gt; closed
+<pre>• Source: https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Country_codes
+  • Webpage opened
+  • Page source extracted
+  • Browser closed
 </pre>
 </div>
 </div>
@@ -8280,21 +8248,19 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">content_div</span> <span class="o">=</span> <span class="n">soup_co</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'mw-content-text'</span><span class="p">})</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing country data from tables"</span><span class="p">)</span>
+<span class="n">content_div</span> <span class="o">=</span> <span class="n">soup_co</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'mw-content-text'</span><span class="p">})</span>
 <span class="n">tables</span> <span class="o">=</span> <span class="n">content_div</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'table'</span><span class="p">)</span>
-    
 <span class="n">eu_efta_countries</span> <span class="o">=</span> <span class="p">[]</span>
-    
+
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tables</span><span class="p">):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>  <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>  
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>  
         <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'tr'</span><span class="p">)</span>
-        
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
             <span class="n">cells</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'td'</span><span class="p">)</span>
-            
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
@@ -8302,11 +8268,13 @@ The dataset was transformed after loading to match the structure of the remainin
                     <span class="n">country_name</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">country_code</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">country_code</span> <span class="o">=</span> <span class="n">country_code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'('</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">')'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Country: </span><span class="si">{</span><span class="n">country_name</span><span class="si">}</span><span class="s2">, geo: </span><span class="si">{</span><span class="n">country_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - </span><span class="si">{</span><span class="n">country_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">country_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
                     <span class="n">country_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'Country'</span><span class="p">:</span> <span class="n">country_name</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">:</span> <span class="n">country_code</span><span class="p">}</span>
                     <span class="n">eu_efta_countries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">country_data</span><span class="p">)</span>
+
 <span class="n">eu_efta_countries_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">eu_efta_countries</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Countries extracted: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">eu_efta_countries_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> countries"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8319,37 +8287,39 @@ The dataset was transformed after loading to match the structure of the remainin
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Country: Belgium, geo: BE
-Country: Greece, geo: EL
-Country: Lithuania, geo: LT
-Country: Portugal, geo: PT
-Country: Bulgaria, geo: BG
-Country: Spain, geo: ES
-Country: Luxembourg, geo: LU
-Country: Romania, geo: RO
-Country: Czechia, geo: CZ
-Country: France, geo: FR
-Country: Hungary, geo: HU
-Country: Slovenia, geo: SI
-Country: Denmark, geo: DK
-Country: Croatia, geo: HR
-Country: Malta, geo: MT
-Country: Slovakia, geo: SK
-Country: Germany, geo: DE
-Country: Italy, geo: IT
-Country: Netherlands, geo: NL
-Country: Finland, geo: FI
-Country: Estonia, geo: EE
-Country: Cyprus, geo: CY
-Country: Austria, geo: AT
-Country: Sweden, geo: SE
-Country: Ireland, geo: IE
-Country: Latvia, geo: LV
-Country: Poland, geo: PL
-Country: Iceland, geo: IS
-Country: Norway, geo: NO
-Country: Liechtenstein, geo: LI
-Country: Switzerland, geo: CH
+<pre>  • Parsing country data from tables
+    - Belgium: BE
+    - Greece: EL
+    - Lithuania: LT
+    - Portugal: PT
+    - Bulgaria: BG
+    - Spain: ES
+    - Luxembourg: LU
+    - Romania: RO
+    - Czechia: CZ
+    - France: FR
+    - Hungary: HU
+    - Slovenia: SI
+    - Denmark: DK
+    - Croatia: HR
+    - Malta: MT
+    - Slovakia: SK
+    - Germany: DE
+    - Italy: IT
+    - Netherlands: NL
+    - Finland: FI
+    - Estonia: EE
+    - Cyprus: CY
+    - Austria: AT
+    - Sweden: SE
+    - Ireland: IE
+    - Latvia: LV
+    - Poland: PL
+    - Iceland: IS
+    - Norway: NO
+    - Liechtenstein: LI
+    - Switzerland: CH
+✓ Countries extracted: 31 countries
 </pre>
 </div>
 </div>
@@ -8360,11 +8330,13 @@ Country: Switzerland, geo: CH
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">eu_efta_countries_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/eu_efta_countries.csv'</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'EU + EFTA countries list was saved into </span><span class="se">\'</span><span class="s1">../data/eu_efta_countries.csv</span><span class="se">\'</span><span class="s1">.'</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving countries list"</span><span class="p">)</span>
+<span class="n">eu_efta_countries_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/eu_efta_countries.csv'</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Countries saved: ../data/eu_efta_countries.csv"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -8377,7 +8349,9 @@ Country: Switzerland, geo: CH
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>EU + EFTA countries list was saved into '../data/eu_efta_countries.csv'.
+<pre>• Saving countries list
+✓ Countries saved: ../data/eu_efta_countries.csv
+
 </pre>
 </div>
 </div>
@@ -8390,7 +8364,7 @@ Country: Switzerland, geo: CH
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="O2-Cleaning-and-pre-processing-datasets">O2 Cleaning and pre-processing datasets<a class="anchor-link" href="#O2-Cleaning-and-pre-processing-datasets">¶</a></h2>
+<h2 id="O2-Preprocessing-datasets">O2 Preprocessing datasets<a class="anchor-link" href="#O2-Preprocessing-datasets">¶</a></h2><p>This section removes unnecessary columns, and transforms datasets from long to wide format to prepare for merging and analysis.</p>
 </div>
 </div>
 </div>
@@ -8399,7 +8373,7 @@ Country: Switzerland, geo: CH
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
@@ -8468,7 +8442,7 @@ None
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">nunique</span><span class="p">())</span>
@@ -8518,7 +8492,7 @@ dtype: int64
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Two datasets include a categorical variable <em>freq</em> with only one level; the variable will be removed for the purpose of data cleaning.</p>
+<p>Both expenditure and personnel datasets contain a categorical variable <em>freq</em> with only one level. This variable is removed during data cleaning as it provides no analytical value.</p>
 </div>
 </div>
 </div>
@@ -8527,12 +8501,13 @@ dtype: int64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data_exp2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'freq'</span><span class="p">],</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Cleaning datasets"</span><span class="p">)</span>
+<span class="n">data_exp2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'freq'</span><span class="p">],</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">data_pers2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'freq'</span><span class="p">],</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Unused columns were removed.'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"  ✓ Unused columns removed"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8545,7 +8520,8 @@ dtype: int64
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Unused columns were removed.
+<pre>• Cleaning datasets
+  ✓ Unused columns removed
 </pre>
 </div>
 </div>
@@ -8558,7 +8534,7 @@ dtype: int64
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>exp2 and pers2 datasets include identical categorical variables: <em>nace_r2</em>, <em>geo</em>, <em>time</em>, which will be used for dataset merge. The remaining categorical variables (<em>unit</em> for exp2 dataset; <em>unit</em> and <em>prof_pos</em> for pers2 dataset) represent different metrics related to the dataset, represented by the <em>value</em> column. Levels of <em>unit</em> and <em>prof_pos</em> will be transformed to new columns representing those metrics (<em>exp2_MIO_EUR</em>, <em>exp2_PC_TOT</em>, <em>pers2_FTE_RSE</em>, <em>pers2_FTE_TOTAL</em>, <em>pers2_HC_RSE</em>, <em>pers2_HC_TOTAL</em>) to allow for a proper merge (flattening multiindex pivot tables).</p>
+<p>The expenditure and personnel datasets share common categorical variables (<em>nace_r2</em>, <em>geo</em>, <em>time</em>) that serve as merge keys. The remaining categorical variables (<em>unit</em> for expenditure data; <em>unit</em> and <em>prof_pos</em> for personnel data) represent different metrics stored in the <em>value</em> column. These variables are transformed into separate columns (<em>exp2_MIO_EUR</em>, <em>exp2_PC_TOT</em>, <em>pers2_FTE_RSE</em>, <em>pers2_FTE_TOTAL</em>, <em>pers2_HC_RSE</em>, <em>pers2_HC_TOTAL</em>) through pivot operations to enable proper dataset merging.</p>
 </div>
 </div>
 </div>
@@ -8567,7 +8543,7 @@ dtype: int64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset exp2, </span><span class="se">\'</span><span class="s1">unit</span><span class="se">\'</span><span class="s1"> levels  : '</span><span class="p">,</span> <span class="n">data_exp2</span><span class="p">[</span><span class="s1">'unit'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
@@ -8620,12 +8596,14 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data_exp2_wide</span> <span class="o">=</span> <span class="n">data_exp2</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="s1">'unit'</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="s1">'value'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Transforming expenditure data to wide format"</span><span class="p">)</span>
+<span class="n">data_exp2_wide</span> <span class="o">=</span> <span class="n">data_exp2</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="s1">'unit'</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="s1">'value'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 <span class="n">data_exp2_wide</span> <span class="o">=</span> <span class="n">data_exp2_wide</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"exp2_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">]</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset exp2 was transformed into a wide format:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  ✓ Expenditure data: </span><span class="si">{</span><span class="n">data_exp2_wide</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows × </span><span class="si">{</span><span class="n">data_exp2_wide</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Sample: </span><span class="si">{</span><span class="n">data_exp2_wide</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">data_exp2_wide</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -8639,12 +8617,14 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Dataset exp2 was transformed into a wide format:
+<pre>• Transforming expenditure data to wide format
+  ✓ Expenditure data: 5,985 rows × 5 columns
+    Sample: (5985, 5)
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8724,15 +8704,17 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data_pers2_wide</span> <span class="o">=</span> <span class="n">data_pers2</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">,</span> <span class="s1">'prof_pos'</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'unit'</span><span class="p">],</span> <span class="n">values</span> <span class="o">=</span> <span class="s1">'value'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Transforming personnel data to wide format"</span><span class="p">)</span>
+<span class="n">data_pers2_wide</span> <span class="o">=</span> <span class="n">data_pers2</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">,</span> <span class="s1">'prof_pos'</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'unit'</span><span class="p">],</span> <span class="n">values</span> <span class="o">=</span> <span class="s1">'value'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 <span class="n">data_pers2_wide</span> <span class="o">=</span> <span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'prof_pos'</span><span class="p">],</span> <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'FTE'</span><span class="p">,</span><span class="s1">'HC'</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 <span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">])</span>
                             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_flat_index</span><span class="p">()]</span>
 <span class="n">data_pers2_wide</span> <span class="o">=</span> <span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"pers2_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">]</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset pers2 was transformed into a wide format:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  ✓ Personnel data: </span><span class="si">{</span><span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows × </span><span class="si">{</span><span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Sample: </span><span class="si">{</span><span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">data_pers2_wide</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -8746,12 +8728,14 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Dataset pers2 was transformed into a wide format:
+<pre>• Transforming personnel data to wide format
+  ✓ Personnel data: 5,985 rows × 7 columns
+    Sample: (5985, 7)
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8845,7 +8829,7 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="O3-Merging-datasets-and-saving-files">O3 Merging datasets and saving files<a class="anchor-link" href="#O3-Merging-datasets-and-saving-files">¶</a></h2>
+<h2 id="O3-Merging-datasets">O3 Merging datasets<a class="anchor-link" href="#O3-Merging-datasets">¶</a></h2><p>This section merges the preprocessed datasets using common keys and exports the final consolidated dataset for further analysis.</p>
 </div>
 </div>
 </div>
@@ -8854,12 +8838,19 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data_pers2_wide</span><span class="p">,</span> <span class="n">data_exp2_wide</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">'left'</span><span class="p">)</span> 
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Merging all datasets"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data_pers2_wide</span><span class="p">,</span> <span class="n">data_exp2_wide</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">'left'</span><span class="p">)</span> 
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_fem2</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">'left'</span><span class="p">)</span> 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Datasets were merged:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✓ Merged dataset: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows × </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Sample data: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"• Dataset summary:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - NACE levels: </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - Geographic levels: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'geo'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2"> countries"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - Time levels: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2"> years"</span><span class="p">)</span>
 <span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -8873,12 +8864,18 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Datasets were merged:
+<pre>• Merging all datasets
+✓ Merged dataset: 10,032 rows × 10 columns
+  Sample data: (10032, 10)
+• Dataset summary:
+  - NACE levels: ['C', 'C_HTC', 'C_HTC_M', 'C_LTC', 'C_LTC_M', 'G-N', 'TOTAL']
+  - Geographic levels: 45 countries
+  - Time levels: 19 years
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8912,169 +8909,138 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 </thead>
 <tbody>
 <tr>
-<th>4630</th>
+<th>4316</th>
+<td>G-N</td>
+<td>AT</td>
+<td>2008</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>7831</th>
+<td>G-N</td>
+<td>NL</td>
+<td>2021</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>5580</th>
+<td>G-N</td>
+<td>EE</td>
+<td>2012</td>
+<td>1085.6</td>
+<td>1536.4</td>
+<td>1509.0</td>
+<td>2115.0</td>
+<td>102.212</td>
+<td>46.67</td>
+<td>650.0</td>
+</tr>
+<tr>
+<th>7675</th>
+<td>G-N</td>
+<td>MT</td>
+<td>2015</td>
+<td>385.0</td>
+<td>665.5</td>
+<td>414.0</td>
+<td>752.0</td>
+<td>24.947</td>
+<td>67.92</td>
+<td>665.5</td>
+</tr>
+<tr>
+<th>3115</th>
+<td>C_LTC</td>
+<td>LV</td>
+<td>2023</td>
+<td>85.0</td>
+<td>134.0</td>
+<td>135.0</td>
+<td>256.0</td>
+<td>7.127</td>
+<td>6.03</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>9060</th>
+<td>G-N</td>
+<td>UK</td>
+<td>2007</td>
+<td>42964.1</td>
+<td>79302.9</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>12842.154</td>
+<td>56.23</td>
+<td>79302.9</td>
+</tr>
+<tr>
+<th>681</th>
+<td>C</td>
+<td>PT</td>
+<td>2021</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>8848</th>
+<td>G-N</td>
+<td>SK</td>
+<td>2015</td>
+<td>995.7</td>
+<td>1407.5</td>
+<td>1570.0</td>
+<td>2185.0</td>
+<td>82.779</td>
+<td>31.94</td>
+<td>182.4</td>
+</tr>
+<tr>
+<th>4439</th>
+<td>G-N</td>
+<td>BA</td>
+<td>2006</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>4584</th>
 <td>G-N</td>
 <td>BE</td>
-<td>2015</td>
-<td>15114.0</td>
-<td>22689.0</td>
-<td>20244.0</td>
-<td>32337.0</td>
-<td>3031.829</td>
-<td>42.84</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>606</th>
-<td>C</td>
-<td>MT</td>
-<td>2022</td>
-<td>182.0</td>
-<td>311.0</td>
-<td>192.0</td>
-<td>337.0</td>
-<td>12.340</td>
-<td>18.91</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>2396</th>
-<td>C_HTC_M</td>
-<td>RO</td>
-<td>2007</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>8061</th>
-<td>G-N</td>
-<td>PL</td>
-<td>2019</td>
-<td>35891.4</td>
-<td>53129.1</td>
-<td>48783.0</td>
-<td>73510.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>19946.0</td>
-</tr>
-<tr>
-<th>180</th>
-<td>C</td>
-<td>DE</td>
-<td>2014</td>
-<td>166970.0</td>
-<td>310533.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>49482.400</td>
-<td>86.82</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>8980</th>
-<td>G-N</td>
-<td>TR</td>
-<td>2014</td>
-<td>23388.3</td>
-<td>32143.5</td>
-<td>26895.0</td>
-<td>37219.0</td>
-<td>1404.302</td>
-<td>46.59</td>
-<td>37219.0</td>
-</tr>
-<tr>
-<th>6615</th>
-<td>G-N</td>
-<td>IS</td>
 <td>2008</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>5966</th>
-<td>G-N</td>
-<td>FI</td>
-<td>2008</td>
-<td>5489.0</td>
-<td>8715.7</td>
-<td>7598.0</td>
-<td>12962.0</td>
-<td>950.480</td>
-<td>18.63</td>
-<td>2854.0</td>
-</tr>
-<tr>
-<th>1139</th>
-<td>C_HTC</td>
-<td>EL</td>
-<td>2023</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>3909</th>
-<td>C_LTC_M</td>
-<td>KR</td>
-<td>2019</td>
-<td>21125.8</td>
-<td>25332.8</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2414.276</td>
-<td>4.41</td>
-<td>NaN</td>
+<td>7033.5</td>
+<td>12411.5</td>
+<td>9317.0</td>
+<td>16572.0</td>
+<td>1536.509</td>
+<td>33.04</td>
+<td>7033.5</td>
 </tr>
 </tbody>
 </table>
 </div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=835cfcc8-0168-4226-9d9e-d7b8fe1cb990">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset </span><span class="se">\'</span><span class="s1">nace_r2</span><span class="se">\'</span><span class="s1"> levels  : '</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">'nace_r2'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset </span><span class="se">\'</span><span class="s1">geo</span><span class="se">\'</span><span class="s1"> levels  : '</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">'geo'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset </span><span class="se">\'</span><span class="s1">time</span><span class="se">\'</span><span class="s1"> levels  : '</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Dataset 'nace_r2' levels  :  ['C', 'C_HTC', 'C_HTC_M', 'C_LTC', 'C_LTC_M', 'G-N', 'TOTAL']
-Dataset 'geo' levels  :  ['AL', 'AT', 'BA', 'BE', 'BG', 'CH', 'CN_X_HK', 'CY', 'CZ', 'DE', 'DK', 'EA19', 'EA20', 'EE', 'EL', 'ES', 'EU27_2020', 'FI', 'FR', 'HR', 'HU', 'IE', 'IS', 'IT', 'JP', 'KR', 'LT', 'LU', 'LV', 'ME', 'MK', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'RS', 'RU', 'SE', 'SI', 'SK', 'TR', 'UK', 'US']
-Dataset 'time' levels  :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023']
-</pre>
 </div>
 </div>
 </div>
@@ -9084,11 +9050,13 @@ Dataset 'time' levels  :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_data.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Merged dataset was saved into </span><span class="se">\'</span><span class="s1">../data/scraper_data.csv</span><span class="se">\'</span><span class="s1">.'</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving merged dataset"</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_data.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Merged dataset saved: ../data/scraper_data.csv"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -9101,7 +9069,9 @@ Dataset 'time' levels  :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Merged dataset was saved into '../data/scraper_data.csv'.
+<pre>• Saving merged dataset
+✓ Merged dataset saved: ../data/scraper_data.csv
+
 </pre>
 </div>
 </div>
