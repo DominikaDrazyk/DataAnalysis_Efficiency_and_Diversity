@@ -19,7 +19,7 @@ I am a Doctor of Neuroscience with strong experience in data analysis, statistic
 
 [ :page_facing_up: ] &emsp; &emsp; &emsp; only into the storytelling ? &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &nbsp; open `./reports/` 
 
-Reports `./reports/*.html` were created using Jupyter Notebooks `./py_notebooks/*.ipynb`. Python codes `./py_codes/*.py` are concise versions of those notebooks without the storytelling. Both output the same figures `./figures/*.png` and data files `./data/*.csv`.
+Reports `./reports/*` were created using Jupyter Notebooks `./py_notebooks/*.ipynb` and Microsoft Power Point. Python codes `./py_codes/*.py` are concise versions of those notebooks. Both output the same figures `./figures/*.png` and data files `./data/*.csv`.
 
 ## :black_circle: Overview
 
@@ -49,7 +49,7 @@ External data sources (Eurostat / DBnomics):
 
 Programming & Analysis: Python {`pandas`, `NumPy`, `matplotlib`, `seaborn`, `scipy`}
 
-Web scraping & metadata extraction: Python {`BeautifulSoup`, `Selenium`}
+Web scraping & metadata extraction: Python {`BeautifulSoup`, `selenium`}
 
 Environment: Jupyter Notebook
 
@@ -148,16 +148,17 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 
   - **Initial investment**: Italy, Portugal, and Croatia show rising female participation together with stagnant or declining spending efficiency — consistent with potential initial integration costs (recruitment, training). <br> :part_alternation_mark: *Business Insight*: gender-diversity investments may increase short-term costs but can bring long-term efficiency benefits.
       
-  - **Efficiency prioritization**: Bulgaria, Czechia, and Estonia improved spending efficiency but presented declines in female share - their expansion may have favoured male-dominated recruitment or sub-sectors.
+  - **Efficiency prioritization**: Bulgaria, Czechia, and Estonia improved spending efficiency but presented declines in female share. <br> :part_alternation_mark:
+  *Business Insight*: without corresponding diversity policies, improved spending efficiency may have favored male-dominated recruitment or sub-sectors.
 
 ## :black_circle: References
 
-Carucci, R. (2024) “One More Time: Why Diversity Leads to Better Team Performance.” *Forbes*.
+Carucci, R. (2024) One More Time: Why Diversity Leads to Better Team Performance. *Forbes*.
 
-Hoogendoorn, S., Oosterbeek, H., & van Praag, M. (2019) “When Gender Diversity Makes Firms More Productive.” *Harvard Business Review*.
+Hoogendoorn, S., Oosterbeek, H., & van Praag, M. (2019) When Gender Diversity Makes Firms More Productive. *Harvard Business Review*.
 
 Niederle, M., Segal, C., & Vesterlund, L. (2008) How Costly is Diversity? Affirmative Action in Light of Gender Differences in Competitiveness. *NBER Working Paper*.
 
-Phillips, K. (2014) “How Diversity Makes Us Smarter.” *Scientific American*.
+Phillips, K. (2014) How Diversity Makes Us Smarter. *Scientific American*.
 
-Wearden, G. (2011) "EU debt crisis: Italy hit with rating downgrade". *The Guardian*. 
+Wearden, G. (2011) EU debt crisis: Italy hit with rating downgrade. *The Guardian*. 
