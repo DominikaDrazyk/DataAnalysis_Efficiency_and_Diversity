@@ -23,7 +23,11 @@ import re
 import os
 
 # Paths
-path = os.path.dirname(os.path.dirname( __file__ ))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONT_PATH = os.path.join(BASE_DIR, '..', 'assets', 'fonts', 'Ubuntu-Regular.ttf')
+STYLE_PATH = os.path.join(BASE_DIR, 'custom.mplstyle')
+FIGURES_PATH = os.path.join(BASE_DIR, '..', 'figures')
+DATA_PATH = os.path.join(BASE_DIR, '..', 'data')
 
 # Functions
 def extract_data():
@@ -49,7 +53,8 @@ def extract_data():
 
     print("• Extracting female researcher data")
     url_fem2 = "https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B%22freq%22%3A%5B%22A%22%5D%2C%22nace_r2%22%3A%5B%22G-N%22%5D%7D&tab=table"
-    fem2_path = os.path.join(path, 'data/rd_p_bempoccr2.csv')
+    file_name = 'rd_p_bempoccr2.csv'
+    fem2_path = os.path.join(DATA_PATH, file_name)
     data_fem2 = pd.read_csv(fem2_path)
     
     # Process column names
@@ -173,7 +178,7 @@ def extract_metadata():
 
     print("  • Parsing metadata fields")
     body = soup_fem2.find('body')
-    marker = body.find("p", class_ = "my-8")
+    marker = body.find("p", class_ = "text-sm")
     text = marker.get_text(strip = True)
     match = re.search(r'on(\w+\s+\d+,\s+\d+)\s+\((\d+:\d+\s+[AP]M)\)', text)
     if match:
@@ -186,14 +191,13 @@ def extract_metadata():
         fem2_date = 'None'
         print(f"    - Last updated: {fem2_date}")
     
-    div = body.find('div', class_ = "container")
-    span = div.find('span', class_ = "hover:text-foreground transition-colors")
-    a = span.find_next('a', class_ = "text-muted-foreground link")
+    div = body.find('div', class_ = "grow p-4")
+    a = div.find_next('a', class_ = "text-muted-foreground link")
     fem2_source = a.get_text(strip = True)[1:-1]
     print(f"    - Source: {fem2_source}")
     
-    div = body.find('div', class_ = "container")
-    h1 = div.find('h1', class_ = "text-3xl mb-10")
+    div = body.find('div', class_ = "grow p-4")
+    h1 = div.find('h1', class_ = "text-4xl font-medium tracking-tight mb-8 mt-0")
     spans = h1.find_all('span')
     fem2_title = spans[3].get_text(strip = True)
     print(f"    - Title: {fem2_title}")
@@ -212,7 +216,9 @@ def extract_metadata():
     print(meta)
 
     print("• Saving metadata")
-    meta.to_csv('../data/scraper_metadata.csv', encoding='utf-8', index = False)
+    file_name = 'scraper_metadata.csv'
+    save_path = os.path.join(DATA_PATH, file_name)
+    meta.to_csv(save_path, encoding='utf-8', index = False)
     print("✓ Metadata saved: ../data/scraper_metadata.csv")
     print()
     
@@ -261,7 +267,9 @@ def extract_countries_list():
     print(f"✓ Countries extracted: {len(eu_efta_countries_df)} countries")
 
     print("• Saving countries list")
-    eu_efta_countries_df.to_csv('../data/eu_efta_countries.csv', encoding = 'utf-8', index = False)
+    file_name = 'eu_efta_countries.csv'
+    save_path = os.path.join(DATA_PATH, file_name)
+    eu_efta_countries_df.to_csv(save_path, encoding='utf-8', index = False)
     print("✓ Countries saved: ../data/eu_efta_countries.csv")
     print()
     
@@ -307,7 +315,9 @@ def merge_datasets(data_exp2_wide, data_pers2_wide, data_fem2):
     print(f"  - Time levels: {len(data['time'].unique())} years")
 
     print("• Saving merged dataset")
-    data.to_csv('../data/scraper_data.csv', encoding='utf-8', index = False)
+    file_name = 'scraper_data.csv'
+    save_path = os.path.join(DATA_PATH, file_name)
+    data.to_csv(save_path, encoding='utf-8', index = False)
     print("✓ Merged dataset saved: ../data/scraper_data.csv")
     print()
     

@@ -21,18 +21,22 @@ import scipy as sp
 from scipy.stats import shapiro
 import os
 
+# Paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONT_PATH = os.path.join(BASE_DIR, '..', 'assets', 'fonts', 'Ubuntu-Regular.ttf')
+STYLE_PATH = os.path.join(BASE_DIR, 'custom.mplstyle')
+FIGURES_PATH = os.path.join(BASE_DIR, '..', 'figures')
+DATA_PATH = os.path.join(BASE_DIR, '..', 'data')
+
 custom_params = {"font.size": 16, "axes.titlesize": 14, "axes.labelsize": 10, "legend.fontsize": 10, 
                  'axes.facecolor':'white', 'figure.facecolor':'white', "grid.color": 'lightgray', 
                  "axes.edgecolor": '#3D3D3D', 'xtick.color': '#3D3D3D', 'ytick.color': '#3D3D3D',
                  "grid.linewidth": 1, "axes.linewidth": 1.25, 'xtick.bottom': True, 
                  'ytick.left': True, "xtick.major.size": 5, "ytick.major.size": 5, 
                  "xtick.minor.size": 2, "ytick.minor.size": 2}
-sns.set_theme(context = 'paper', palette = 'muted', font = "Rubik", rc = custom_params)
+sns.set_theme(context = 'paper', palette = 'muted', font = "Ubuntu", rc = custom_params)
 pd.options.display.precision = 3
-plt.style.use('custom.mplstyle')
-
-# Paths
-path = os.path.dirname(os.path.dirname( __file__ ))
+plt.style.use(STYLE_PATH)
 
 # Functions
 def filter_countries(row):
@@ -46,15 +50,15 @@ def filter_countries(row):
 def load_datasets():
     print("---- O1.1 Loading datasets...")
     
-    df_path = os.path.join(path, 'data/scraper_data.csv')
+    df_path = os.path.join(DATA_PATH, 'scraper_data.csv')
     df = pd.read_csv(df_path)
     print(f"✓ Main dataset loaded: {len(df):,} records")
 
-    mdf_path = os.path.join(path, 'data/scraper_metadata.csv')
+    mdf_path = os.path.join(DATA_PATH, 'scraper_metadata.csv')
     mdf = pd.read_csv(mdf_path)
     print(f"✓ Metadata loaded: {len(mdf):,} records")
 
-    co_path = os.path.join(path, 'data/eu_efta_countries.csv')
+    co_path = os.path.join(DATA_PATH, 'eu_efta_countries.csv')
     euefta = pd.read_csv(co_path)
     print(f"✓ EU + EFTA countries loaded: {len(euefta):,} countries\n")
     
@@ -125,7 +129,9 @@ def review_missing_data(df):
     g.tick_params(axis = 'x', rotation = 90)
     g.figure.subplots_adjust(hspace = 0.8)
     g.set(ylim = (0, 100))
-    plt.savefig('../figures/Fig1.3.1 The percentage of NaN values per country.png')
+    file_name = 'Fig1.3.1 The percentage of NaN values per country.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
     print("✓ Saved: Fig1.3.1 The percentage of NaN values per country")
 
     # The percentage of data entry gaps across years:
@@ -141,7 +147,8 @@ def review_missing_data(df):
     g.set(ylim = (0, 100))
     plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
     g.figure.set_size_inches(10,4)
-    plt.savefig('../figures/Fig1.3.2 The percentage of data entry gaps across years.png')
+    file_name = 'Fig1.3.2 The percentage of data entry gaps across years.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig1.3.2 The percentage of data entry gaps across years")
 
     # Choosing countries with the least data entry gaps.
@@ -179,7 +186,8 @@ def calculate_efficiency_metrics(df):
     g.set(title = 'Annual Spending Efficiency per a Researcher (FTE)', 
           xlabel = "Calendar year", ylabel = "Spending Efficiency [MIO € / 1 Reearcher FTE]")
     g.figure.set_size_inches(10,4)
-    plt.savefig('../figures/Fig2.1 Annual Spending Efficiency per a Researcher FTE.png')
+    file_name = 'Fig2.1 Annual Spending Efficiency per a Researcher FTE.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig2.1 Annual Spending Efficiency per a Researcher FTE")
 
     print("\n• O2.2 Calculating Annual Labor Intensity")
@@ -197,7 +205,8 @@ def calculate_efficiency_metrics(df):
     g.set(title = 'Annual Labor Intensity per 1 MIO €', 
           xlabel = "Calendar year", ylabel = "Labor Intensity [Reearcher FTE / 1 MIO €]")
     g.figure.set_size_inches(10,4)
-    plt.savefig('../figures/Fig2.2 Annual Labor Intensity per million euro.png')
+    file_name = 'Fig2.2 Annual Labor Intensity per million euro.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig2.2 Annual Labor Intensity per million euro")
     print()
     
@@ -223,7 +232,8 @@ def calculate_female_share(df):
     g.set(title = 'Annual Female Share of Researchers (FTEs)', 
           xlabel = "Calendar year", ylabel = "Female Share of Researchers")
     g.figure.set_size_inches(10,4)
-    plt.savefig('../figures/Fig3.1 Annual Female Share of Researchers.png')
+    file_name = 'Fig3.1 Annual Female Share of Researchers.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig3.1 Annual Female Share of Researchers")
     print()
     
@@ -273,7 +283,8 @@ def calculate_correlations(df):
             else: 
                 plt.plot(X_plot, m*X_plot + b, ':')    
 
-    plt.savefig('../figures/Fig3.2 Female Share vs Spending Efficiency.png')
+    file_name = 'Fig3.2 Female Share vs Spending Efficiency.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig3.2 Female Share vs Spending Efficiency")
     print()
     
@@ -341,7 +352,8 @@ def calculate_growth_rates(df):
     g.set(title = 'Compound Annual Growth Rates between 2009 and 2021', xlabel = "Country", ylabel = "CAGRs")
     sns.move_legend(g, "upper right", bbox_to_anchor = (0.95, 0.95), ncol = 1)
     g.figure.set_size_inches(10,4)
-    plt.savefig('../figures/Fig3.3 CAGRs between 2009 and 2021.png')
+    file_name = 'Fig3.3 CAGRs between 2009 and 2021.png'
+    save_path = os.path.join(FIGURES_PATH, file_name)
     print("✓ Saved: Fig3.3 CAGRs between 2009 and 2021")
     print()
     
@@ -359,10 +371,14 @@ def display_metadata(mdf):
 def save_preprocessed_datasets(df, df_cagr):
     print("Saving analysis results:")
     
-    df.to_csv('../data/analysis_data.csv', encoding='utf-8', index = False)
+    file_name = 'analysis_data.csv'
+    save_path = os.path.join(DATA_PATH, file_name)
+    df.to_csv(save_path, encoding='utf-8', index=False)
     print(f"✓ Main analysis dataset saved: ../data/analysis_data.csv ({df.shape[0]:,} rows)")
     
-    df_cagr.to_csv('../data/cagr_analysis_data.csv', encoding='utf-8', index = False)
+    file_name = 'cagr_analysis_data.csv'
+    save_path = os.path.join(DATA_PATH, file_name)
+    df_cagr.to_csv(save_path, encoding='utf-8', index=False)
     print(f"✓ CAGR analysis dataset saved: ../data/cagr_analysis_data.csv ({df_cagr.shape[0]:,} rows)")
 
 def main():
