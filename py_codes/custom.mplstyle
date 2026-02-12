@@ -33,7 +33,7 @@ ytick.major.size: 5
 xtick.minor.size: 2
 ytick.minor.size: 2
 
-axes.prop_cycle: cycler("color", ["113F67", "2746B8", "58A0C8", "B8A927", "FFDE63", "EF7722", "BB6653", "CC1616", "4B352A", "4F200D"])
+axes.prop_cycle: cycler("color", ["113F67", "215f96", "599fc5", "B8A927", "FFDE63", "EF7722", "BB6653", "CC1616", "4B352A", "4F200D"])
 legend.markerscale: 0.75
 lines.linewidth: 1.5
 lines.markersize: 5

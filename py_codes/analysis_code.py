@@ -28,12 +28,6 @@ STYLE_PATH = os.path.join(BASE_DIR, 'custom.mplstyle')
 FIGURES_PATH = os.path.join(BASE_DIR, '..', 'figures')
 DATA_PATH = os.path.join(BASE_DIR, '..', 'data')
 
-custom_params = {"font.size": 16, "axes.titlesize": 14, "axes.labelsize": 10, "legend.fontsize": 10, 
-                 'axes.facecolor':'white', 'figure.facecolor':'white', "grid.color": 'lightgray', 
-                 "axes.edgecolor": '#3D3D3D', 'xtick.color': '#3D3D3D', 'ytick.color': '#3D3D3D',
-                 "grid.linewidth": 1, "axes.linewidth": 1.25, 'xtick.bottom': True, 
-                 'ytick.left': True, "xtick.major.size": 5, "ytick.major.size": 5, 
-                 "xtick.minor.size": 2, "ytick.minor.size": 2}
 sns.set_theme(context = 'paper', palette = 'muted', font = "Ubuntu", rc = custom_params)
 pd.options.display.precision = 3
 plt.style.use(STYLE_PATH)
