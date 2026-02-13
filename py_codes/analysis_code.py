@@ -14,6 +14,7 @@
 
 # Required libraries and custom styles:
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -28,9 +29,20 @@ STYLE_PATH = os.path.join(BASE_DIR, 'custom.mplstyle')
 FIGURES_PATH = os.path.join(BASE_DIR, '..', 'figures')
 DATA_PATH = os.path.join(BASE_DIR, '..', 'data')
 
-sns.set_theme(context = 'paper', palette = 'muted', font = "Ubuntu", rc = custom_params)
 pd.options.display.precision = 3
 plt.style.use(STYLE_PATH)
+full_palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+if os.path.exists(FONT_PATH):
+    fe = fm.FontEntry(
+        fname = FONT_PATH,
+        name = 'ProjectUbuntu'
+    )
+    fm.fontManager.ttflist.insert(0, fe)
+    plt.rcParams['font.family'] = fe.name
+else:
+    print("Warning: Font file not found. Falling back to sans-serif.")
+    plt.rcParams['font.family'] = 'sans-serif'
 
 # Functions
 def filter_countries(row):
@@ -112,37 +124,67 @@ def review_missing_data(df):
 
     # The percentage of data entry gaps per country:
     df_nans = df.groupby('Country')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
-        lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
+    lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Country')
     df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
 
-    g = sns.catplot(kind = 'bar', x = 'Country', y = 'value', row = 'metrics', height = 3, aspect = 3, 
-                    sharey = True, sharex = False, margin_titles = True,  data = df_nans)
-    g.set(title = 'The percentage of NaN values per country', 
-          xlabel = "Country", ylabel = "Percentage of NaN entries [%]")
-    plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
-    g.tick_params(axis = 'x', rotation = 90)
-    g.figure.subplots_adjust(hspace = 0.8)
-    g.set(ylim = (0, 100))
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+
+    metrics = df_nans['metrics'].unique()
+    num_rows = len(metrics)
+
+    fig, axes = plt.subplots(num_rows, 1, figsize = (9, 3 * num_rows), sharey = True)
+    if num_rows == 1: axes = [axes]
+    for i, metric in enumerate(metrics):
+        data_subset = df_nans[df_nans['metrics'] == metric]
+
+        sns.barplot(data = data_subset, x = 'Country', y = 'value', ax = axes[i])
+
+        axes[i].set_title(f"Metric: {metric}")
+        axes[i].set_ylabel("NaN entries [%]")
+        axes[i].set_xlabel("Country")
+
+        axes[i].set_ylim(0, 100)
+        axes[i].set_yticks([0, 20, 40, 60, 80, 100])
+
+        axes[i].tick_params(axis = 'x', rotation = 90)
+
+    plt.suptitle('The percentage of NaN values per country', y = 1.005)
+    plt.tight_layout()
+
     file_name = 'Fig1.3.1 The percentage of NaN values per country.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
     plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig1.3.1 The percentage of NaN values per country")
 
     # The percentage of data entry gaps across years:
     df_nans = df.groupby(
-        'Year')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
-        lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Year')
+    'Year')[['GDE Euro','FTE All', 'FTE Researcher', 'FTE Researcher Fem']].apply(
+    lambda x: (x.isna().sum() * 100 / len(x) )).sort_values(by = 'Year')
     df_nans = df_nans.stack().reset_index().rename(columns={'level_1': 'metrics', 0: 'value'})
 
-    g = sns.relplot(kind = 'line', x = 'Year', y = 'value', data = df_nans, hue = 'metrics')
-    g.set(title = 'The percentage of NaN values per year', 
-          xlabel = "Countries", ylabel = "Percentage of NaN entries [%]")
-    sns.move_legend(g, "upper right", title = 'Metrics', bbox_to_anchor = (0.68, 0.97))
-    g.set(ylim = (0, 100))
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (7,4)})
+
+    ax = sns.lineplot(data = df_nans, x = 'Year', y = 'value', hue = 'metrics', linewidth = 2)
+
+    plt.title('The percentage of NaN values per year', loc = 'center')
+    plt.xlabel("Year")
+    plt.ylabel("Percentage of NaN entries [%]")
+
+    plt.legend(title = "Metrics", loc = 'upper left', bbox_to_anchor=(1.01, 0.98))
+
     plt.yticks([0,10,20,30,40,50,60,70,80,90,100], ['0','10','20','30','40','50','60','70','80','90','100'])
-    g.figure.set_size_inches(10,4)
+    
+    plt.tight_layout()
+    
     file_name = 'Fig1.3.2 The percentage of data entry gaps across years.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig1.3.2 The percentage of data entry gaps across years")
 
     # Choosing countries with the least data entry gaps.
@@ -175,13 +217,25 @@ def calculate_efficiency_metrics(df):
     nan_pct = df['SpendEff'].isnull().sum()*100/len(df['SpendEff'])
     print(f"• SpendEff: {nan_pct:.0f}% values converted to NaN")
 
-    g = sns.relplot(kind = 'line', x = 'Year', y = 'SpendEff', data = df, hue = 'Country', errorbar = None)
-    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-    g.set(title = 'Annual Spending Efficiency per a Researcher (FTE)', 
-          xlabel = "Calendar year", ylabel = "Spending Efficiency [MIO € / 1 Reearcher FTE]")
-    g.figure.set_size_inches(10,4)
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (7,4)})
+
+    ax = sns.lineplot(data = df, x = 'Year', y = 'SpendEff', hue = 'Country', linewidth = 2)
+
+    plt.legend(title = "Country", loc = 'upper left', bbox_to_anchor=(1.01, 0.98))
+
+    plt.xlabel("Calendar year")
+    plt.ylabel("Spending Efficiency [MIO € / 1 Reearcher FTE]")
+    plt.title(f"Annual Spending Efficiency per a Researcher (FTE)", loc = 'center')
+
+    plt.tight_layout()
+
     file_name = 'Fig2.1 Annual Spending Efficiency per a Researcher FTE.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig2.1 Annual Spending Efficiency per a Researcher FTE")
 
     print("\n• O2.2 Calculating Annual Labor Intensity")
@@ -194,13 +248,25 @@ def calculate_efficiency_metrics(df):
     print(f"• LaborInt: {nan_pct:.0f}% values converted to NaN")
     df = df.merge(labour_calc, on=['Country', 'Year'], how = 'left')
 
-    g = sns.relplot(kind = 'line', x = 'Year', y = 'LaborInt', data = df, hue = 'Country', errorbar = None)
-    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-    g.set(title = 'Annual Labor Intensity per 1 MIO €', 
-          xlabel = "Calendar year", ylabel = "Labor Intensity [Reearcher FTE / 1 MIO €]")
-    g.figure.set_size_inches(10,4)
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (7,4)})
+
+    ax = sns.lineplot(x = 'Year', y = 'LaborInt', data = df, hue = 'Country', errorbar = None)
+
+    plt.title('Annual Labor Intensity per 1 MIO €', loc = 'center')
+    plt.xlabel("Calendar year")
+    plt.ylabel("Labor Intensity [Researcher FTE / 1 MIO €]")
+
+    plt.legend(title = "Country", loc = 'upper left', bbox_to_anchor = (1.01, 0.98))
+
+    plt.tight_layout()
+
     file_name = 'Fig2.2 Annual Labor Intensity per million euro.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig2.2 Annual Labor Intensity per million euro")
     print()
     
@@ -220,14 +286,25 @@ def calculate_female_share(df):
     print(f"• FemShare: {nan_pct:.0f}% values converted to NaN")
     df = df.merge(femshare_calc, on=['Country', 'Year'], how = 'left')
 
-    g = sns.relplot(kind = 'line', x = 'Year', y = 'FemShare', data = df,
-                    hue = 'Country', errorbar = None)
-    sns.move_legend(g, "upper right", bbox_to_anchor = (0.975, 0.95), ncol = 1)
-    g.set(title = 'Annual Female Share of Researchers (FTEs)', 
-          xlabel = "Calendar year", ylabel = "Female Share of Researchers")
-    g.figure.set_size_inches(10,4)
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (7,4)})
+
+    ax = sns.lineplot(data = df, x = 'Year', y = 'FemShare', hue = 'Country', linewidth = 2)
+
+    plt.legend(title = "Country", loc = 'upper left', bbox_to_anchor=(1.01, 0.95))
+
+    plt.xlabel("Calendar year")
+    plt.ylabel("Female Share of Researchers")
+    plt.title(f"Annual Female Share of Researchers (FTEs)", loc = 'center')
+
+    plt.tight_layout()
+
     file_name = 'Fig3.1 Annual Female Share of Researchers.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig3.1 Annual Female Share of Researchers")
     print()
     
@@ -240,45 +317,54 @@ def calculate_correlations(df):
     new_df = df[df['FemShare'].notna() & df['SpendEff'].notna()]
     print(f"• Valid data points: {len(new_df):,} observations")
     
-    fig = plt.figure()
-    fig.set_size_inches(5.35, 5)
-    sns.scatterplot(data = new_df, x = 'FemShare', y = 'SpendEff', hue = 'Country')
-    plt.title('Female Share vs. Spending Efficiency')
-    plt.xlabel('Female Share of Researchers')
-    plt.ylabel('Spending Efficiency [MIO € / 1 Researcher FTE]')
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (7,4)})
 
-    print("\n Correlation Test Results:")
-    print("• Testing normality and calculating correlations by country")
+    fig, ax = plt.subplots()
 
-    for c in new_df['Country'].unique():
-        x = new_df[new_df['Country'] == c]['FemShare']
-        y = new_df[new_df['Country'] == c]['SpendEff']
+    sns.scatterplot(data = new_df, x = 'FemShare', y = 'SpendEff', hue = 'Country', ax = ax, s = 20)
+
+    print('Correlation test (CT): coefficients and statistical significance\n')
+
+    countries = new_df['Country'].unique()
+    for c in countries:
+        mask = new_df['Country'] == c
+        x = new_df[mask]['FemShare']
+        y = new_df[mask]['SpendEff']
 
         sh_x = shapiro(x)
         sh_y = shapiro(y)
-
-        ax = plt.gca()
-        ax.legend(title = 'Country', bbox_to_anchor = (1.35, 0.99))
+        
         m, b = np.polyfit(x, y, 1)
-        X_plot = np.linspace(ax.get_xlim()[0]+0.05, ax.get_xlim()[1]-0.05, 100)
-
-        if (sh_x[1] <= 0.05) or (sh_y[1]  <= 0.05):
+        x_lims = ax.get_xlim()
+        X_plot = np.linspace(x_lims[0] + 0.05, x_lims[1] - 0.05, 100)
+        
+        if (sh_x[1] <= 0.05) or (sh_y[1] <= 0.05):
             stat, p = sp.stats.spearmanr(a = x, b = y)
-            print(f"  - {c}: Normality violation - Spearman's r = {stat:.2f}, p = {p:.2E}")
-            if p <= 0.05: 
-                plt.plot(X_plot, m*X_plot + b, '-')
-            else: 
-                plt.plot(X_plot, m*X_plot + b, ':')
+            dist_type = "Normality violation"
         else:  
             stat, p = sp.stats.pearsonr(x = x, y = y)
-            print(f"  - {c}: Normal distribution - Pearson's r = {stat:.2f}, p = {p:.2E}")
-            if p <= 0.05: 
-                plt.plot(X_plot, m*X_plot + b, '-')
-            else: 
-                plt.plot(X_plot, m*X_plot + b, ':')    
+            dist_type = "Normal distribution"
+            
+        print(f"  - {c}: {dist_type} - Stat = {stat:.2f}, p = {p:.2E}")
+
+        line_style = '-' if p <= 0.05 else ':'
+        ax.plot(X_plot, m * X_plot + b, linestyle = line_style)
+
+    ax.set_title('Female Share vs. Spending Efficiency')
+    ax.set_xlabel('Female Share of Researchers')
+    ax.set_ylabel('Spending Efficiency [MIO € / 1 Researcher FTE]')
+
+    ax.legend(title = 'Country', bbox_to_anchor = (1.001, 1), loc = 'upper left')
+
+    plt.tight_layout()
 
     file_name = 'Fig3.2 Female Share vs Spending Efficiency.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig3.2 Female Share vs Spending Efficiency")
     print()
     
@@ -342,12 +428,25 @@ def calculate_growth_rates(df):
                       value_name = 'CAGR value').drop_duplicates()
     df_cagr = df_cagr[['Country', 'geo', 'Year', 'CAGR types', 'CAGR value']]
 
-    g = sns.catplot(kind = 'bar', x = 'Country', y = 'CAGR value', hue = 'CAGR types', data = df_cagr)
-    g.set(title = 'Compound Annual Growth Rates between 2009 and 2021', xlabel = "Country", ylabel = "CAGRs")
-    sns.move_legend(g, "upper right", bbox_to_anchor = (0.95, 0.95), ncol = 1)
-    g.figure.set_size_inches(10,4)
+    plt.close('all') 
+    plt.style.use(STYLE_PATH)
+    plt.rcParams.update({
+        'figure.figsize': (10,4)})
+
+    ax = sns.barplot(data = df_cagr, x = 'Country', y = 'CAGR value', hue = 'CAGR types')
+
+    plt.title('Compound Annual Growth Rates between 2009 and 2021')
+    plt.xlabel("Country")
+    plt.ylabel("CAGRs")
+
+    plt.legend(title = 'CAGR types', loc = 'upper left', bbox_to_anchor = (0.95, 0.99), ncol = 1)
+
+    plt.tight_layout()
+
     file_name = 'Fig3.3 CAGRs between 2009 and 2021.png'
     save_path = os.path.join(FIGURES_PATH, file_name)
+    plt.savefig(save_path)
+    plt.show()
     print("✓ Saved: Fig3.3 CAGRs between 2009 and 2021")
     print()
     

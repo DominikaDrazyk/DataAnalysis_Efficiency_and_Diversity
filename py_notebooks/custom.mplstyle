@@ -4,9 +4,13 @@ savefig.dpi: 300
 savefig.bbox: tight  
 
 font.size: 10
+figure.titlesize: 16
 axes.titlesize: 14
-axes.labelsize: 10
+axes.labelsize: 12
+xtick.labelsize: 10
+ytick.labelsize: 10
 legend.fontsize: 10
+legend.title_fontsize: 11
 font.family: sans-serif
 font.sans-serif: Ubuntu
 axes.titleweight: normal
@@ -42,3 +46,8 @@ axes.spines.left: True
 axes.spines.right: False
 axes.spines.top: False
 axes.spines.bottom: True
+
+legend.frameon: True
+legend.facecolor: white
+legend.edgecolor: white
+legend.framealpha: 0.9
