@@ -7332,7 +7332,12 @@ a.anchor-link {
     if (!diagrams.length) {
       return;
     }
-    const mermaid = (await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs")).default;
+    const mermaid = (await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.0/mermaid.esm.min.mjs")).default;
+    const elkUrl = "https://cdnjs.cloudflare.com/ajax/libs/mermaid-layout-elk/0.1.9/mermaid-layout-elk.esm.min.mjs";
+    if(elkUrl) {
+      const elkLayouts = (await import(elkUrl)).default;
+      mermaid.registerLayoutLoaders(elkLayouts);
+    }
     const parser = new DOMParser();
 
     mermaid.initialize({
@@ -7429,7 +7434,8 @@ a.anchor-link {
      * Post-process to ensure mermaid diagrams contain only valid SVG and XHTML.
      */
     function cleanMermaidSvg(svg) {
-      return svg.replace(RE_VOID_ELEMENT, replaceVoidElement);
+      svg = svg.replace(RE_VOID_ELEMENT, replaceVoidElement);
+      return `${SVG_XML_HEADER}${svg}`;
     }
 
 
@@ -7455,6 +7461,285 @@ a.anchor-link {
       }
       return `<${tag} ${rest}>`;
     }
+
+
+  /**
+   * Named HTML entities with their decimal equivalent codes.
+   *
+   * @see https://www.w3.org/TR/WD-html40-970708/sgml/entities.html
+   * */
+  const HTML_ENTITIES = `<!ENTITY Aacute "&#193;">
+<!ENTITY aacute "&#225;">
+<!ENTITY Acirc "&#194;">
+<!ENTITY acirc "&#226;">
+<!ENTITY acute "&#180;">
+<!ENTITY AElig "&#198;">
+<!ENTITY aelig "&#230;">
+<!ENTITY Agrave "&#192;">
+<!ENTITY agrave "&#224;">
+<!ENTITY alefsym "&#8501;">
+<!ENTITY Alpha "&#913;">
+<!ENTITY alpha "&#945;">
+<!ENTITY amp "&#38;">
+<!ENTITY and "&#8869;">
+<!ENTITY ang "&#8736;">
+<!ENTITY Aring "&#197;">
+<!ENTITY aring "&#229;">
+<!ENTITY asymp "&#8776;">
+<!ENTITY Atilde "&#195;">
+<!ENTITY atilde "&#227;">
+<!ENTITY Auml "&#196;">
+<!ENTITY auml "&#228;">
+<!ENTITY bdquo "&#8222;">
+<!ENTITY Beta "&#914;">
+<!ENTITY beta "&#946;">
+<!ENTITY brvbar "&#166;">
+<!ENTITY bull "&#8226;">
+<!ENTITY cap "&#8745;">
+<!ENTITY Ccedil "&#199;">
+<!ENTITY ccedil "&#231;">
+<!ENTITY cedil "&#184;">
+<!ENTITY cent "&#162;">
+<!ENTITY Chi "&#935;">
+<!ENTITY chi "&#967;">
+<!ENTITY circ "&#710;">
+<!ENTITY clubs "&#9827;">
+<!ENTITY cong "&#8773;">
+<!ENTITY copy "&#169;">
+<!ENTITY crarr "&#8629;">
+<!ENTITY cup "&#8746;">
+<!ENTITY curren "&#164;">
+<!ENTITY dagger "&#8224;">
+<!ENTITY Dagger "&#8225;">
+<!ENTITY darr "&#8595;">
+<!ENTITY dArr "&#8659;">
+<!ENTITY deg "&#176;">
+<!ENTITY Delta "&#916;">
+<!ENTITY delta "&#948;">
+<!ENTITY diams "&#9830;">
+<!ENTITY divide "&#247;">
+<!ENTITY Eacute "&#201;">
+<!ENTITY eacute "&#233;">
+<!ENTITY Ecirc "&#202;">
+<!ENTITY ecirc "&#234;">
+<!ENTITY Egrave "&#200;">
+<!ENTITY egrave "&#232;">
+<!ENTITY empty "&#8709;">
+<!ENTITY emsp "&#8195;">
+<!ENTITY ensp "&#8194;">
+<!ENTITY epsilon "&#949;">
+<!ENTITY Epsilon "&#917;">
+<!ENTITY equiv "&#8801;">
+<!ENTITY Eta "&#919;">
+<!ENTITY eta "&#951;">
+<!ENTITY ETH "&#208;">
+<!ENTITY eth "&#240;">
+<!ENTITY Euml "&#203;">
+<!ENTITY euml "&#235;">
+<!ENTITY exist "&#8707;">
+<!ENTITY fnof "&#402;">
+<!ENTITY forall "&#8704;">
+<!ENTITY frac12 "&#189;">
+<!ENTITY frac14 "&#188;">
+<!ENTITY frac34 "&#190;">
+<!ENTITY frasl "&#8260;">
+<!ENTITY Gamma "&#915;">
+<!ENTITY gamma "&#947;">
+<!ENTITY ge "&#8805;">
+<!ENTITY gt "&#62;">
+<!ENTITY harr "&#8596;">
+<!ENTITY hArr "&#8660;">
+<!ENTITY hearts "&#9829;">
+<!ENTITY hellip "&#8230;">
+<!ENTITY Iacute "&#205;">
+<!ENTITY iacute "&#237;">
+<!ENTITY Icirc "&#206;">
+<!ENTITY icirc "&#238;">
+<!ENTITY iexcl "&#161;">
+<!ENTITY Igrave "&#204;">
+<!ENTITY igrave "&#236;">
+<!ENTITY image "&#8465;">
+<!ENTITY infin "&#8734;">
+<!ENTITY int "&#8747;">
+<!ENTITY Iota "&#921;">
+<!ENTITY iota "&#953;">
+<!ENTITY iquest "&#191;">
+<!ENTITY isin "&#8712;">
+<!ENTITY Iuml "&#207;">
+<!ENTITY iuml "&#239;">
+<!ENTITY Kappa "&#922;">
+<!ENTITY kappa "&#954;">
+<!ENTITY Lambda "&#923;">
+<!ENTITY lambda "&#955;">
+<!ENTITY lang "&#9001;">
+<!ENTITY laquo "&#171;">
+<!ENTITY larr "&#8592;">
+<!ENTITY lArr "&#8656;">
+<!ENTITY lceil "&#8968;">
+<!ENTITY ldquo "&#8220;">
+<!ENTITY le "&#8804;">
+<!ENTITY lfloor "&#8970;">
+<!ENTITY lowast "&#8727;">
+<!ENTITY loz "&#9674;">
+<!ENTITY lrm "&#8206;">
+<!ENTITY lsaquo "&#8249;">
+<!ENTITY lsquo "&#8216;">
+<!ENTITY lt "&#60;">
+<!ENTITY macr "&#175;">
+<!ENTITY mdash "&#8212;">
+<!ENTITY micro "&#181;">
+<!ENTITY middot "&#183;">
+<!ENTITY minus "&#8722;">
+<!ENTITY Mu "&#924;">
+<!ENTITY mu "&#956;">
+<!ENTITY nabla "&#8711;">
+<!ENTITY nbsp "&#160;">
+<!ENTITY ndash "&#8211;">
+<!ENTITY ne "&#8800;">
+<!ENTITY ni "&#8715;">
+<!ENTITY not "&#172;">
+<!ENTITY notin "&#8713;">
+<!ENTITY nsub "&#8836;">
+<!ENTITY Ntilde "&#209;">
+<!ENTITY ntilde "&#241;">
+<!ENTITY Nu "&#925;">
+<!ENTITY nu "&#957;">
+<!ENTITY Oacute "&#211;">
+<!ENTITY oacute "&#243;">
+<!ENTITY Ocirc "&#212;">
+<!ENTITY ocirc "&#244;">
+<!ENTITY OElig "&#338;">
+<!ENTITY oelig "&#339;">
+<!ENTITY Ograve "&#210;">
+<!ENTITY ograve "&#242;">
+<!ENTITY oline "&#8254;">
+<!ENTITY Omega "&#937;">
+<!ENTITY omega "&#969;">
+<!ENTITY Omicron "&#927;">
+<!ENTITY omicron "&#959;">
+<!ENTITY oplus "&#8853;">
+<!ENTITY or "&#8870;">
+<!ENTITY ordf "&#170;">
+<!ENTITY ordm "&#186;">
+<!ENTITY Oslash "&#216;">
+<!ENTITY oslash "&#248;">
+<!ENTITY Otilde "&#213;">
+<!ENTITY otilde "&#245;">
+<!ENTITY otimes "&#8855;">
+<!ENTITY Ouml "&#214;">
+<!ENTITY ouml "&#246;">
+<!ENTITY para "&#182;">
+<!ENTITY part "&#8706;">
+<!ENTITY permil "&#8240;">
+<!ENTITY perp "&#8869;">
+<!ENTITY Phi "&#934;">
+<!ENTITY phi "&#966;">
+<!ENTITY Pi "&#928;">
+<!ENTITY pi "&#960;">
+<!ENTITY piv "&#982;">
+<!ENTITY plusmn "&#177;">
+<!ENTITY pound "&#163;">
+<!ENTITY prime "&#8242;">
+<!ENTITY Prime "&#8243;">
+<!ENTITY prod "&#8719;">
+<!ENTITY prop "&#8733;">
+<!ENTITY Psi "&#936;">
+<!ENTITY psi "&#968;">
+<!ENTITY quot "&#34;">
+<!ENTITY radic "&#8730;">
+<!ENTITY rang "&#9002;">
+<!ENTITY raquo "&#187;">
+<!ENTITY rarr "&#8594;">
+<!ENTITY rArr "&#8658;">
+<!ENTITY rceil "&#8969;">
+<!ENTITY rdquo "&#8221;">
+<!ENTITY real "&#8476;">
+<!ENTITY reg "&#174;">
+<!ENTITY rfloor "&#8971;">
+<!ENTITY Rho "&#929;">
+<!ENTITY rho "&#961;">
+<!ENTITY rlm "&#8207;">
+<!ENTITY rsaquo "&#8250;">
+<!ENTITY rsquo "&#8217;">
+<!ENTITY sbquo "&#8218;">
+<!ENTITY Scaron "&#352;">
+<!ENTITY scaron "&#353;">
+<!ENTITY sdot "&#8901;">
+<!ENTITY sect "&#167;">
+<!ENTITY shy "&#173;">
+<!ENTITY Sigma "&#931;">
+<!ENTITY sigma "&#963;">
+<!ENTITY sigmaf "&#962;">
+<!ENTITY sim "&#8764;">
+<!ENTITY spades "&#9824;">
+<!ENTITY sub "&#8834;">
+<!ENTITY sube "&#8838;">
+<!ENTITY sum "&#8721;">
+<!ENTITY sup "&#8835;">
+<!ENTITY sup1 "&#185;">
+<!ENTITY sup2 "&#178;">
+<!ENTITY sup3 "&#179;">
+<!ENTITY supe "&#8839;">
+<!ENTITY szlig "&#223;">
+<!ENTITY Tau "&#932;">
+<!ENTITY tau "&#964;">
+<!ENTITY there4 "&#8756;">
+<!ENTITY Theta "&#920;">
+<!ENTITY theta "&#952;">
+<!ENTITY thetasym "&#977;">
+<!ENTITY thinsp "&#8201;">
+<!ENTITY THORN "&#222;">
+<!ENTITY thorn "&#254;">
+<!ENTITY tilde "&#732;">
+<!ENTITY times "&#215;">
+<!ENTITY trade "&#8482;">
+<!ENTITY Uacute "&#218;">
+<!ENTITY uacute "&#250;">
+<!ENTITY uarr "&#8593;">
+<!ENTITY uArr "&#8657;">
+<!ENTITY Ucirc "&#219;">
+<!ENTITY ucirc "&#251;">
+<!ENTITY Ugrave "&#217;">
+<!ENTITY ugrave "&#249;">
+<!ENTITY uml "&#168;">
+<!ENTITY upsih "&#978;">
+<!ENTITY Upsilon "&#933;">
+<!ENTITY upsilon "&#965;">
+<!ENTITY Uuml "&#220;">
+<!ENTITY uuml "&#252;">
+<!ENTITY weierp "&#8472;">
+<!ENTITY Xi "&#926;">
+<!ENTITY xi "&#958;">
+<!ENTITY Yacute "&#221;">
+<!ENTITY yacute "&#253;">
+<!ENTITY yen "&#165;">
+<!ENTITY Yuml "&#376;">
+<!ENTITY yuml "&#255;">
+<!ENTITY Zeta "&#918;">
+<!ENTITY zeta "&#950;">
+<!ENTITY zwj "&#8205;">
+<!ENTITY zwnj "&#8204;">`.replace(/\n/g, ' ');
+
+  /**
+   * A reasonably strict xml declaration.
+   */
+  const XML_DECL = '<?xml version="1.0" standalone="no"?>';
+
+  /**
+   * The beginning of the XML doctype declaration.
+   */
+  const DOCTYPE_START = `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [`;
+
+  /**
+   * The end of the XML docype declaration.
+   */
+  const DOCTYPE_END = ']>';
+
+  /**
+   * A full header for an SVG XML document.
+   */
+  const SVG_XML_HEADER = `${XML_DECL}
+    ${DOCTYPE_START}${HTML_ENTITIES}${DOCTYPE_END}`;
 
     void Promise.all([...diagrams].map(renderOneMarmaid));
   });
@@ -7557,7 +7842,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># __author__ = Dominika Drazyk</span>
@@ -7589,7 +7874,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">selenium</span><span class="w"> </span><span class="kn">import</span> <span class="n">webdriver</span>
@@ -7602,6 +7887,10 @@ a.anchor-link {
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># Paths</span>
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+<span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7645,7 +7934,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting expenditure data (htec_sti_exp2)"</span><span class="p">)</span>
@@ -7670,8 +7959,8 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Extracting expenditure data (htec_sti_exp2)
-✓ Expenditure data extracted: 11,970 records
-  Sample data: (11970, 6)
+✓ Expenditure data extracted: 12,600 records
+  Sample data: (12600, 6)
   freq     unit nace_r2        geo  time       value
 0    A  MIO_EUR   TOTAL  EU27_2020  2005  107641.827
 1    A  MIO_EUR   TOTAL  EU27_2020  2006  116175.251
@@ -7688,7 +7977,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting personnel data (htec_sti_pers2)"</span><span class="p">)</span>
@@ -7713,8 +8002,8 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Extracting personnel data (htec_sti_pers2)
-✓ Personnel data extracted: 23,940 records
-  Sample data: (23940, 7)
+✓ Personnel data extracted: 25,200 records
+  Sample data: (25200, 7)
   freq nace_r2 unit prof_pos        geo  time      value
 0    A   TOTAL  FTE    TOTAL  EU27_2020  2005   982304.1
 1    A   TOTAL  FTE    TOTAL  EU27_2020  2006  1036105.4
@@ -7742,12 +8031,14 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting female researcher data"</span><span class="p">)</span>
 <span class="n">url_fem2</span> <span class="o">=</span> <span class="s2">"https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B</span><span class="si">%22f</span><span class="s2">req</span><span class="si">%22%</span><span class="s2">3A%5B%22A</span><span class="si">%22%</span><span class="s2">5D%2C%22nace_r2</span><span class="si">%22%</span><span class="s2">3A%5B</span><span class="si">%22G</span><span class="s2">-N</span><span class="si">%22%</span><span class="s2">5D%7D&amp;tab=table"</span>
-<span class="n">data_fem2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'../data/rd_p_bempoccr2.csv'</span><span class="p">)</span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="s1">'rd_p_bempoccr2.csv'</span>
+<span class="n">fem2_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+<span class="n">data_fem2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fem2_path</span><span class="p">)</span>
 
 <span class="c1"># Process column names</span>
 <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_fem2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -7826,7 +8117,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting expenditure dataset metadata"</span><span class="p">)</span>
@@ -7857,7 +8148,20 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Extracting expenditure dataset metadata
   Source: https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table
-  • Webpage opened
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>Error sending stats to Plausible: error sending request for url (https://plausible.io/api/event)
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>  • Webpage opened
   • Page source extracted
   • Browser closed
 </pre>
@@ -7870,7 +8174,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
@@ -7907,7 +8211,7 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  • Parsing metadata fields
-    - Last updated: 29/09/2025 23:00
+    - Last updated: 06/02/2026 11:00
     - Source: Eurostat
     - Title: Business enterprise R&amp;D expenditure in high-tech sectors by NACE Rev. 2
     - Dataset ID: htec_sti_exp2
@@ -7921,7 +8225,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting personnel dataset metadata"</span><span class="p">)</span>
@@ -7965,7 +8269,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
@@ -8002,7 +8306,7 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  • Parsing metadata fields
-    - Last updated: 29/09/2025 23:00
+    - Last updated: 06/02/2026 11:00
     - Source: Eurostat
     - Title: Business enterprise R&amp;D personnel in high-tech sectors by NACE Rev. 2
     - Dataset ID: htec_sti_pers2
@@ -8016,7 +8320,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Extracting female researcher dataset metadata"</span><span class="p">)</span>
@@ -8060,12 +8364,12 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing metadata fields"</span><span class="p">)</span>
 <span class="n">body</span> <span class="o">=</span> <span class="n">soup_fem2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'body'</span><span class="p">)</span>
-<span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"my-8"</span><span class="p">)</span>
+<span class="n">marker</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-sm"</span><span class="p">)</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'on(\w+\s+\d+,\s+\d+)\s+\((\d+:\d+\s+[AP]M)\)'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
@@ -8078,14 +8382,13 @@ a.anchor-link {
     <span class="n">fem2_date</span> <span class="o">=</span> <span class="s1">'None'</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Last updated: </span><span class="si">{</span><span class="n">fem2_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"container"</span><span class="p">)</span>
-<span class="n">span</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'span'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"hover:text-foreground transition-colors"</span><span class="p">)</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-muted-foreground link"</span><span class="p">)</span>
+<span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"grow p-4"</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-muted-foreground link"</span><span class="p">)</span>
 <span class="n">fem2_source</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Source: </span><span class="si">{</span><span class="n">fem2_source</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"container"</span><span class="p">)</span>
-<span class="n">h1</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-3xl mb-10"</span><span class="p">)</span>
+<span class="n">div</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"grow p-4"</span><span class="p">)</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="n">div</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">class_</span> <span class="o">=</span> <span class="s2">"text-4xl font-medium tracking-tight mb-8 mt-0"</span><span class="p">)</span>
 <span class="n">spans</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'span'</span><span class="p">)</span>
 <span class="n">fem2_title</span> <span class="o">=</span> <span class="n">spans</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - Title: </span><span class="si">{</span><span class="n">fem2_title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -8108,7 +8411,7 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  • Parsing metadata fields
-    - Last updated: 02/05/2025 11:00
+    - Last updated: 14/01/2026 23:00
     - Source: Eurostat
     - Title: R&amp;D personnel and researchers in business enterprise sector by NACE Rev. 2 activity and sex
     - Dataset ID: rd_​p_​bempoccr2
@@ -8122,7 +8425,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Creating metadata dataset"</span><span class="p">)</span>
@@ -8150,9 +8453,9 @@ a.anchor-link {
 2  rd_​p_​bempoccr2       Eurostat   
 
                                        dataset_title dataset_last_updated  
-0  Business enterprise R&amp;D expenditure in high-te...     29/09/2025 23:00  
-1  Business enterprise R&amp;D personnel in high-tech...     29/09/2025 23:00  
-2  R&amp;D personnel and researchers in business ente...     02/05/2025 11:00  
+0  Business enterprise R&amp;D expenditure in high-te...     06/02/2026 11:00  
+1  Business enterprise R&amp;D personnel in high-tech...     06/02/2026 11:00  
+2  R&amp;D personnel and researchers in business ente...     14/01/2026 23:00  
 </pre>
 </div>
 </div>
@@ -8163,11 +8466,13 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving metadata"</span><span class="p">)</span>
-<span class="n">meta</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_metadata.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="s1">'scraper_metadata.csv'</span>
+<span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+<span class="n">meta</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Metadata saved: ../data/scraper_metadata.csv"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 </pre></div>
@@ -8206,7 +8511,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">url_countries_meta</span> <span class="o">=</span> <span class="s1">'https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Country_codes'</span>
@@ -8248,7 +8553,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"  • Parsing country data from tables"</span><span class="p">)</span>
@@ -8330,11 +8635,13 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving countries list"</span><span class="p">)</span>
-<span class="n">eu_efta_countries_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/eu_efta_countries.csv'</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="s1">'eu_efta_countries.csv'</span>
+<span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+<span class="n">eu_efta_countries_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Countries saved: ../data/eu_efta_countries.csv"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 </pre></div>
@@ -8373,7 +8680,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
@@ -8391,46 +8698,46 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;class 'pandas.core.frame.DataFrame'&gt;
-RangeIndex: 11970 entries, 0 to 11969
+<pre>&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 12600 entries, 0 to 12599
 Data columns (total 6 columns):
  #   Column   Non-Null Count  Dtype  
 ---  ------   --------------  -----  
- 0   freq     11970 non-null  object 
- 1   unit     11970 non-null  object 
- 2   nace_r2  11970 non-null  object 
- 3   geo      11970 non-null  object 
- 4   time     11970 non-null  object 
- 5   value    7262 non-null   float64
-dtypes: float64(1), object(5)
-memory usage: 561.2+ KB
+ 0   freq     12600 non-null  str    
+ 1   unit     12600 non-null  str    
+ 2   nace_r2  12600 non-null  str    
+ 3   geo      12600 non-null  str    
+ 4   time     12600 non-null  str    
+ 5   value    7358 non-null   float64
+dtypes: float64(1), str(5)
+memory usage: 590.8 KB
 None
-&lt;class 'pandas.core.frame.DataFrame'&gt;
-RangeIndex: 23940 entries, 0 to 23939
+&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 25200 entries, 0 to 25199
 Data columns (total 7 columns):
  #   Column    Non-Null Count  Dtype  
 ---  ------    --------------  -----  
- 0   freq      23940 non-null  object 
- 1   nace_r2   23940 non-null  object 
- 2   unit      23940 non-null  object 
- 3   prof_pos  23940 non-null  object 
- 4   geo       23940 non-null  object 
- 5   time      23940 non-null  object 
- 6   value     12908 non-null  float64
-dtypes: float64(1), object(6)
-memory usage: 1.3+ MB
+ 0   freq      25200 non-null  str    
+ 1   nace_r2   25200 non-null  str    
+ 2   unit      25200 non-null  str    
+ 3   prof_pos  25200 non-null  str    
+ 4   geo       25200 non-null  str    
+ 5   time      25200 non-null  str    
+ 6   value     13020 non-null  float64
+dtypes: float64(1), str(6)
+memory usage: 1.3 MB
 None
-&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class 'pandas.DataFrame'&gt;
 Index: 4769 entries, 0 to 5205
 Data columns (total 4 columns):
  #   Column        Non-Null Count  Dtype  
 ---  ------        --------------  -----  
- 0   time          4769 non-null   object 
- 1   geo           4769 non-null   object 
+ 0   time          4769 non-null   str    
+ 1   geo           4769 non-null   str    
  2   fem2_FTE_RSE  2944 non-null   float64
- 3   nace_r2       4769 non-null   object 
-dtypes: float64(1), object(3)
-memory usage: 186.3+ KB
+ 3   nace_r2       4769 non-null   str    
+dtypes: float64(1), str(3)
+memory usage: 186.3 KB
 None
 </pre>
 </div>
@@ -8442,7 +8749,7 @@ None
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data_exp2</span><span class="o">.</span><span class="n">nunique</span><span class="p">())</span>
@@ -8464,16 +8771,16 @@ None
 unit          2
 nace_r2       7
 geo          45
-time         19
-value      5739
+time         20
+value      5791
 dtype: int64
 freq            1
 nace_r2         7
 unit            2
 prof_pos        2
 geo            45
-time           19
-value       10163
+time           20
+value       10250
 dtype: int64
 time              19
 geo               38
@@ -8501,7 +8808,7 @@ dtype: int64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Cleaning datasets"</span><span class="p">)</span>
@@ -8543,7 +8850,7 @@ dtype: int64
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset exp2, </span><span class="se">\'</span><span class="s1">unit</span><span class="se">\'</span><span class="s1"> levels  : '</span><span class="p">,</span> <span class="n">data_exp2</span><span class="p">[</span><span class="s1">'unit'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
@@ -8583,8 +8890,8 @@ Dataset exp2, 'geo' levels  :  ['EU27_2020', 'EA20', 'EA19', 'BE', 'BG', 'CZ', '
 Dataset pers2, 'geo' levels :  ['EU27_2020', 'EA20', 'EA19', 'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU', 'HU', 'MT', 'NL', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'IS', 'NO', 'CH', 'UK', 'BA', 'ME', 'MK', 'AL', 'RS', 'TR', 'RU', 'US', 'CN_X_HK', 'JP', 'KR']
 Dataset fem2, 'geo' levels :  ['AT', 'BA', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'ME', 'MK', 'MT', 'PL', 'PT', 'RO', 'RS', 'SE', 'SI', 'SK', 'TR', 'CH', 'FI', 'NL', 'NO', 'UK', 'JP', 'KR'] 
 
-Dataset exp2, 'time' levels  :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023']
-Dataset pers2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023']
+Dataset exp2, 'time' levels  :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']
+Dataset pers2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']
 Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023']
 </pre>
 </div>
@@ -8596,7 +8903,7 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Transforming expenditure data to wide format"</span><span class="p">)</span>
@@ -8618,13 +8925,13 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Transforming expenditure data to wide format
-  ✓ Expenditure data: 5,985 rows × 5 columns
-    Sample: (5985, 5)
+  ✓ Expenditure data: 6,300 rows × 5 columns
+    Sample: (6300, 5)
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[26]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8704,7 +9011,7 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Transforming personnel data to wide format"</span><span class="p">)</span>
@@ -8734,13 +9041,13 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Transforming personnel data to wide format
-  ✓ Personnel data: 5,985 rows × 7 columns
-    Sample: (5985, 7)
+  ✓ Personnel data: 6,300 rows × 7 columns
+    Sample: (6300, 7)
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[27]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8843,7 +9150,7 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Merging all datasets"</span><span class="p">)</span>
@@ -8870,17 +9177,17 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>• Merging all datasets
-✓ Merged dataset: 10,032 rows × 10 columns
-  Sample data: (10032, 10)
+✓ Merged dataset: 10,347 rows × 10 columns
+  Sample data: (10347, 10)
 • Dataset summary:
   - NACE levels: ['C', 'C_HTC', 'C_HTC_M', 'C_LTC', 'C_LTC_M', 'G-N', 'TOTAL']
   - Geographic levels: 45 countries
-  - Time levels: 19 years
+  - Time levels: 20 years
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -8914,23 +9221,36 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 </thead>
 <tbody>
 <tr>
-<th>7156</th>
-<td>G-N</td>
-<td>LU</td>
-<td>2017</td>
-<td>747.8</td>
-<td>1368.8</td>
-<td>941.0</td>
-<td>1942.0</td>
-<td>157.400</td>
-<td>39.15</td>
-<td>941.0</td>
+<th>3315</th>
+<td>C_LTC</td>
+<td>MK</td>
+<td>2020</td>
+<td>12.1</td>
+<td>20.6</td>
+<td>20.0</td>
+<td>38.0</td>
+<td>0.092</td>
+<td>0.89</td>
+<td>NaN</td>
 </tr>
 <tr>
-<th>4835</th>
+<th>5915</th>
+<td>G-N</td>
+<td>EL</td>
+<td>2007</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>5144</th>
 <td>G-N</td>
 <td>CH</td>
-<td>2006</td>
+<td>2019</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
@@ -8940,108 +9260,95 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <td>NaN</td>
 </tr>
 <tr>
-<th>3425</th>
-<td>C_LTC_M</td>
-<td>AL</td>
-<td>2010</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>5170</th>
-<td>G-N</td>
-<td>CZ</td>
-<td>2016</td>
-<td>10335.6</td>
-<td>17866.9</td>
-<td>12338.0</td>
-<td>23409.0</td>
-<td>796.654</td>
-<td>43.97</td>
-<td>1864.0</td>
-</tr>
-<tr>
-<th>4784</th>
-<td>G-N</td>
-<td>BG</td>
-<td>2018</td>
-<td>4768.0</td>
-<td>7324.0</td>
-<td>5579.0</td>
-<td>8603.0</td>
-<td>198.116</td>
-<td>65.00</td>
-<td>1630.0</td>
-</tr>
-<tr>
-<th>832</th>
-<td>C</td>
-<td>UK</td>
-<td>2020</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>566</th>
-<td>C</td>
+<th>10038</th>
+<td>TOTAL</td>
 <td>ME</td>
-<td>2020</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td>2016</td>
+<td>54.6</td>
+<td>76.2</td>
+<td>91.0</td>
+<td>170.0</td>
+<td>2.108</td>
+<td>100.00</td>
 <td>NaN</td>
 </tr>
 <tr>
-<th>2096</th>
-<td>C_HTC_M</td>
-<td>HU</td>
+<th>766</th>
+<td>C</td>
+<td>RU</td>
 <td>2011</td>
-<td>2220.0</td>
-<td>3122.0</td>
-<td>2460.0</td>
-<td>3613.0</td>
-<td>143.401</td>
-<td>19.07</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
 <td>NaN</td>
 </tr>
 <tr>
-<th>8204</th>
-<td>G-N</td>
-<td>PT</td>
-<td>2020</td>
-<td>13224.2</td>
-<td>17949.0</td>
-<td>24344.0</td>
-<td>33291.0</td>
-<td>1064.027</td>
-<td>57.72</td>
-<td>17949.0</td>
-</tr>
-<tr>
-<th>9086</th>
-<td>G-N</td>
-<td>UK</td>
+<th>4327</th>
+<td>C_LTC_M</td>
+<td>RO</td>
 <td>2012</td>
-<td>50065.0</td>
-<td>87618.7</td>
 <td>NaN</td>
 <td>NaN</td>
-<td>11955.061</td>
-<td>56.67</td>
 <td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>6917</th>
+<td>G-N</td>
+<td>IS</td>
+<td>2016</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>183.967</td>
+<td>71.97</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>6338</th>
+<td>G-N</td>
+<td>FR</td>
+<td>2009</td>
+<td>63573.1</td>
+<td>103256.6</td>
+<td>74049.0</td>
+<td>114606.0</td>
+<td>11520.347</td>
+<td>43.59</td>
+<td>114606.0</td>
+</tr>
+<tr>
+<th>173</th>
+<td>C</td>
+<td>CZ</td>
+<td>2018</td>
+<td>9757.8</td>
+<td>20890.3</td>
+<td>11218.0</td>
+<td>29589.0</td>
+<td>1354.952</td>
+<td>54.59</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>5838</th>
+<td>G-N</td>
+<td>EE</td>
+<td>2015</td>
+<td>827.5</td>
+<td>1190.2</td>
+<td>1238.0</td>
+<td>1846.0</td>
+<td>91.830</td>
+<td>65.85</td>
+<td>385.0</td>
 </tr>
 </tbody>
 </table>
@@ -9055,11 +9362,13 @@ Dataset fem2, 'time' levels :  ['2005', '2006', '2007', '2008', '2009', '2010', 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"• Saving merged dataset"</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'../data/scraper_data.csv'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="s1">'scraper_data.csv'</span>
+<span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"✓ Merged dataset saved: ../data/scraper_data.csv"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 </pre></div>
