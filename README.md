@@ -2,14 +2,17 @@
 
 ## :black_circle: About Me
 
-I am a Doctor of Neuroscience with strong experience in data analysis, statistical modelling and research design. I focus on translating complex data into actionable insights for business and policy.
+I am a Doctor of Neuroscience with strong experience in data analysis, statistical modelling and research design. I focus on translating complex data into actionable insights for business and policy. I enjoy data wrangling, visualization, and project management.
 
-**Skills & tools**: advanced R, intermediate Python (*pandas*, *NumPy*, *matplotlib*, *seaborn*, *scipy*), developing my skills in Power BI & PowerApps. I enjoy data wrangling, visualization, and project management. My experience was gained through academic research and industry projects.
+**Skills & tools:** 
+- advanced **R**, advanced **Python** (*pandas*, *NumPy*, *matplotlib*, *seaborn*, *scipy*) - see my [Python portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_Efficiency_and_Diversity), 
+- developing my skills in **Power BI** and **Power Apps** - see my [PowerBI portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_Consultant_Dashboard),
+- developing my skills in **SQL** (**ETL**, **PostgreSQL**, **pgAdmin4**, **DBeaver**) - read along for more information,
+- technical documentation in **Jupyter Notebook** (*Markdown* syntax), version control in **Git**.
 
 &emsp; **Location**: Poland, Krakow <br> 
 &emsp; **Contact**: dominika.a.drazyk@gmail.com <br> 
 &emsp; **LinkedIn**: [in/dominika-drazyk-otw95](https://www.linkedin.com/in/dominika-drazyk-otw95/)
-
 
 ## :grey_question: Are you:
 
@@ -30,7 +33,6 @@ This project examines how efficiently selected European countries convert R&D sp
 ### Data & Source Metadata
 
 External data sources (Eurostat / DBnomics):
-
 - [htec_sti_exp2](https://ec.europa.eu/eurostat/databrowser/view/htec_sti_exp2/default/table) dataset — R&D expenditure in high-tech sectors (Eurostat) 
 - [htec_sti_pers2](https://ec.europa.eu/eurostat/databrowser/view/htec_sti_pers2/default/table) dataset — R&D personnel in high-tech sectors (Eurostat) 
 - [rd_p_bempoccr2](https://db.nomics.world/Eurostat/rd_p_bempoccr2?dimensions=%7B%22freq%22%3A%5B%22A%22%5D%2C%22nace_r2%22%3A%5B%22G-N%22%5D%7D&tab=table) dataset — R&D personnel and researchers by activity and sex (DBnomics / Eurostat) 
@@ -47,13 +49,13 @@ External data sources (Eurostat / DBnomics):
 
 ### Tools & Methods
 
-Programming & Analysis: Python {`pandas`, `NumPy`, `matplotlib`, `seaborn`, `scipy`}
+**Programming & Analysis**: Python {`pandas`, `NumPy`, `matplotlib`, `seaborn`, `scipy`}
 
-Web scraping & metadata extraction: Python {`BeautifulSoup`, `selenium`}
+**Web scraping & metadata extraction**: Python {`BeautifulSoup`, `selenium`}
 
-Environment: Jupyter Notebook
+**Documentation & Reporting**: Markdown, HTML syntax, Jupyter Notebooks.
 
-Version control & sharing: Git & GitHub
+**Version control & sharing**: Git & GitHub
 
 Analytics performed: time-series plots, scatterplots, barplots, CAGR calculations, correlation analysis.
 
@@ -150,6 +152,23 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
       
   - **Efficiency prioritization**: Bulgaria, Czechia, and Estonia improved spending efficiency but presented declines in female share. <br> :part_alternation_mark:
   *Business Insight*: without corresponding diversity policies, improved spending efficiency may have favored male-dominated recruitment or sub-sectors.
+
+## :black_circle: Presented skills
+
+**Data Wrangling & Engineering**
+- Developing *custom web scrapers* (`BeautifulSoup`, `selenium`) to automate the extraction of public datasets and metadata.
+- Preparing and *cleaning panel datasets* using `pandas` and `NumPy` (handling missing values, datetime coercion, standardizing units).
+- Executing complex data merging and restructuring across multiple external sources (Eurostat, DBnomics) to create a unified analytical foundation.
+
+**Statistical Analysis & Modelling**
+- Performing *time-series analysis* to track macro-level sector growth and workforce dynamics from 2005 to 2023.
+- Calculating *advanced performance metrics*, including CAGR (Compound Annual Growth Rate) and custom spending efficiency indices.
+- Conducting *correlation analysis* to evaluate the statistical relationship between demographic changes (female workforce participation) and financial efficiency.
+
+**Data Visualization & Storytelling**
+- Designing programmatic *visualizations* (`matplotlib`, `seaborn`) such as multi-variable time-series plots, scatterplots, and barplots.
+- Translating abstract statistical findings into *actionable business insights* (e.g., categorizing country-level behaviors into "Balanced growth" or "Initial investment" phases).
+- Documenting strict methodological limitations (e.g., distinguishing correlation from causation, addressing missing data gaps) to ensure *data integrity and transparent reporting*.
 
 ## :black_circle: References
 
