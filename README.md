@@ -57,7 +57,7 @@ External data sources (Eurostat / DBnomics):
 
 **Version control & sharing**: Git & GitHub
 
-Analytics performed: time-series plots, scatterplots, barplots, CAGR calculations, correlation analysis.
+**Analytics performed**: time-series plots, scatterplots, barplots, CAGR calculations, correlation analysis.
 
 ## :black_circle: Objectives
 
