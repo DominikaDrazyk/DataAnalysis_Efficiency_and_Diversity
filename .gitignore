@@ -1,7 +1,6 @@
-# ignore those files:
-
 *.ipynb_checkpoints
 .idea
 venv/
+.venv
 __pycache__/
 *.pyc

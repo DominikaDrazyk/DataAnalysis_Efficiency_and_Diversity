@@ -1,30 +1,60 @@
 # Efficiency and Diversity of R&D <br> in Knowledge-Intensive Services (2005–2023)
 
-## :black_circle: About Me
+## :large_orange_diamond: About Me
 
 I am a Doctor of Neuroscience with strong experience in data analysis, statistical modelling and research design. I focus on translating complex data into actionable insights for business and policy. I enjoy data wrangling, visualization, and project management.
 
 **Skills & tools:** 
-- advanced **R**, advanced **Python** (*pandas*, *NumPy*, *matplotlib*, *seaborn*, *scipy*) - see my [Python portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_Efficiency_and_Diversity), 
+- advanced **R**, advanced **Python** (*pandas*, *NumPy*, *matplotlib*, *seaborn*, *scipy*), 
 - developing my skills in **Power BI** and **Power Apps** - see my [PowerBI portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_Consultant_Dashboard),
-- developing my skills in **SQL** (**ETL**, **PostgreSQL**, **pgAdmin4**, **DBeaver**) - read along for more information,
+- developing my skills in **SQL** (**ETL**, **PostgreSQL**, **pgAdmin4**, **DBeaver**) - see my [SQL portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_eCommerce_Audit),
 - technical documentation in **Jupyter Notebook** (*Markdown* syntax), version control in **Git**.
 
 &emsp; **Location**: Poland, Krakow <br> 
 &emsp; **Contact**: dominika.a.drazyk@gmail.com <br> 
 &emsp; **LinkedIn**: [in/dominika-drazyk-otw95](https://www.linkedin.com/in/dominika-drazyk-otw95/)
 
-## :grey_question: Are you:
+## :large_orange_diamond: Project Navigation
+Select the path that best matches your interest:
 
-[ :gear: ] &emsp; &emsp; &emsp; into the the code without much of a storytelling ? &emsp; open `./py_codes/` 
+**1. Executive & Business Insight** <br>
+*For reviewers focused on storytelling, strategy, and end-results.*
 
-[ :gear: + :page_facing_up: ] &emsp; into the code and storytelling ? &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &nbsp; open `./py_notebooks/`
+- [PDF Presentation](./reports/Efficiency_and_Diversity_presentation.pdf): a step-by-step walkthrough of the project’s assumptions, technical execution highlights, and business insights;
 
-[ :page_facing_up: ] &emsp; &emsp; &emsp; only into the storytelling ? &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &nbsp; open `./reports/` 
+- [Figures](./figures/): a repository of all programmatically generated visualizations used to drive the data narrative.
 
-Reports `./reports/*` were created using Jupyter Notebooks `./py_notebooks/*.ipynb` and Microsoft Power Point. Python codes `./py_codes/*.py` are concise versions of those notebooks. Both output the same figures `./figures/*.png` and data files `./data/*.csv`.
+**2. Technical Deep-Dive & Audit** <br>
+*For reviewers interested in the full analytical process and data interpretation.*
 
-## :black_circle: Overview
+- [Full HTML Reports](./reports/): a comprehensive, rendered versions of the analysis, including all code, statistical interpretations, and granular findings;
+
+- [Interactive Notebooks](./py_notebooks/): the original Jupyter environment used for iterative development and data exploration;
+
+- [Clean Code](./py_codes/): production-ready, concise .py versions of the analytical logic, stripped of notebook metadata for better readability.
+
+:eight_spoked_asterisk: **Dependency Management** <br>
+A strictly defined environment manifest ensuring 100% reproducibility and security. Please, follow those steps in case you would like to run the code on your local machine: 
+
+- **Step 1: Initialize the Virtual Environment**
+
+*Linux / macOS Bash*
+```
+python3 -m venv .venv
+source .venv/bin/activate
+```
+*Windows PowerShell*
+```
+python -m venv .venv
+.venv\Scripts\activate
+```
+- **Step 2: Install Required Dependencies**
+```
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## :large_orange_diamond: Overview
 
 This project examines how efficiently selected European countries convert R&D spending into researcher human capital within the knowledge-intensive services sector (NACE G–N). I inspect the available data to assess whether increasing female participation in researcher roles correlates with improved spending efficiency and labour dynamics.
 
@@ -44,8 +74,8 @@ External data sources (Eurostat / DBnomics):
 - `FTE All`: number of full-time positions in NACE G–N sector
 - `FTE Researcher`: number of full-time researcher positions in NACE G–N sector
 - `FTE Researcher Fem`: number of full-time researcher positions held by women in NACE G–N sector
-- `Countries` analysed (final selection): Bulgaria, Czechia, Estonia, Croatia, Hungary, Italy, Poland, Portugal, Slovakia <br> 
-  :grey_exclamation:	This set was selected because each country shows >80% data entry completeness for the chosen metrics.
+- `Countries` (final selection): Bulgaria, Czechia, Estonia, Croatia, Hungary, Italy, Poland, Portugal, Slovakia <br> 
+  :grey_exclamation:	Each of those countries shows >80% data entry completeness for the chosen metrics.
 
 ### Tools & Methods
 
@@ -59,7 +89,7 @@ External data sources (Eurostat / DBnomics):
 
 **Analytics performed**: time-series plots, scatterplots, barplots, CAGR calculations, correlation analysis.
 
-## :black_circle: Objectives
+## :large_orange_diamond: Objectives
 
 - Prepare a clean, merged panel dataset from Eurostat/DBnomics sources (2005–2023) for NACE G–N.
 <br> Code: `scraper_code.ipynb` / `scraper_code.py`
@@ -86,7 +116,7 @@ External data sources (Eurostat / DBnomics):
 
 - :part_alternation_mark: Business-relevant insights for stakeholders interested in R&D investment, workforce planning, and diversity strategies.
 
-## :black_circle: Examples of programming solutions
+## :large_orange_diamond: Examples of programming solutions
 
 **Data cleaning**: clarify variable names and units.
 ```
@@ -141,7 +171,7 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 
 :grey_exclamation: Offered insights are not based on a structured academic knowledge about EU policy or geo-political structure of discussed countries. My aim was to simply demonstrate my ability to understand complex datasets, data characteristics and measures that are outside my primary academic expertise.
 
-## :black_circle: Key findings
+## :large_orange_diamond: Key findings
 
 **General trends**: Most countries showed increasing R&D spending efficiency and growing researcher workforces (2005–2023). Full-time research positions held by women increased faster than overall researcher growth in all analysed countries. <br> 
 :part_alternation_mark: *Business Insight*: countries can be categorised as balanced, inclusion-phase, or efficiency-first.
@@ -153,7 +183,7 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
   - **Efficiency prioritization**: Bulgaria, Czechia, and Estonia improved spending efficiency but presented declines in female share. <br> :part_alternation_mark:
   *Business Insight*: without corresponding diversity policies, improved spending efficiency may have favored male-dominated recruitment or sub-sectors.
 
-## :black_circle: Presented skills
+## :large_orange_diamond: Presented skills
 
 **Data Wrangling & Engineering**
 - Developing *custom web scrapers* (`BeautifulSoup`, `selenium`) to automate the extraction of public datasets and metadata.
@@ -169,15 +199,3 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 - Designing programmatic *visualizations* (`matplotlib`, `seaborn`) such as multi-variable time-series plots, scatterplots, and barplots.
 - Translating abstract statistical findings into *actionable business insights* (e.g., categorizing country-level behaviors into "Balanced growth" or "Initial investment" phases).
 - Documenting strict methodological limitations (e.g., distinguishing correlation from causation, addressing missing data gaps) to ensure *data integrity and transparent reporting*.
-
-## :black_circle: References
-
-Carucci, R. (2024) One More Time: Why Diversity Leads to Better Team Performance. *Forbes*.
-
-Hoogendoorn, S., Oosterbeek, H., & van Praag, M. (2019) When Gender Diversity Makes Firms More Productive. *Harvard Business Review*.
-
-Niederle, M., Segal, C., & Vesterlund, L. (2008) How Costly is Diversity? Affirmative Action in Light of Gender Differences in Competitiveness. *NBER Working Paper*.
-
-Phillips, K. (2014) How Diversity Makes Us Smarter. *Scientific American*.
-
-Wearden, G. (2011) EU debt crisis: Italy hit with rating downgrade. *The Guardian*. 
