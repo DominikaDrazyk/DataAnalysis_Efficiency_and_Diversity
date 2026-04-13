@@ -6,9 +6,9 @@ I am a Doctor of Neuroscience with strong experience in data analysis, statistic
 
 **Skills & tools:** 
 - advanced **R**, advanced **Python** (*pandas*, *NumPy*, *matplotlib*, *seaborn*, *scipy*), 
-- developing my skills in **Power BI** and **Power Apps** - see my [PowerBI portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_Consultant_Dashboard),
-- developing my skills in **SQL** (**ETL**, **PostgreSQL**, **pgAdmin4**, **DBeaver**) - see my [SQL portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_eCommerce_Audit),
-- comfortable managing **AI-augmented workflow**, leveraging *Cursor IDE* and *Claude* while ensuring code integrity through manual review - see my [Python/CSS portfolio project](https://github.com/DominikaDrazyk/DataAnalysis_euPOWERED_Navigator),
+- developing my skills in **Power BI** and **Power Apps**,
+- developing my skills in **SQL** (**ETL**, **PostgreSQL**, **pgAdmin4**, **DBeaver**),
+- comfortable managing **AI-augmented workflow**, leveraging *Cursor IDE* and *Claude*,
 - technical documentation in **Jupyter Notebook** (*Markdown* syntax), version control in **Git**.
 
 &emsp; **Contact**: dominika.a.drazyk@gmail.com <br> 
@@ -81,6 +81,23 @@ Strategic evaluation of how efficiently selected European countries convert R&D 
 
 - :part_alternation_mark: Business-relevant insights for stakeholders interested in R&D investment, workforce planning, and diversity strategies.
 
+### Objectives
+
+- Prepare a clean, merged panel dataset from Eurostat/DBnomics sources (2005–2023) for NACE G–N.
+<br> Code: `scraper_code.ipynb` / `scraper_code.py`
+
+- Load prepared datasets, filter and rename variables, review NaNs and missing data. 
+<br> Code: `analysis_code.ipynb` / `analysis_code.py`
+
+- Analyse sector's spending efficiency and labour intensity across selected countries.
+<br> Code: `analysis_code.ipynb` / `analysis_code.py`
+
+- Analyse participation of female researchers and its relationship to the sector's growth rates.
+<br> Code: `analysis_code.ipynb` / `analysis_code.py`
+
+- Compare trends, CAGRs and correlations across countries to understand how female inclusion relates to spending efficiency and labour intensity.
+<br> Code: `analysis_code.ipynb` / `analysis_code.py`
+
 ### Data & Source Metadata
 
 External data sources (Eurostat / DBnomics):
@@ -109,23 +126,6 @@ External data sources (Eurostat / DBnomics):
 **Version control & sharing**: Git & GitHub
 
 **Analytics performed**: time-series plots, scatterplots, barplots, CAGR calculations, correlation analysis.
-
-## :large_orange_diamond: Objectives
-
-- Prepare a clean, merged panel dataset from Eurostat/DBnomics sources (2005–2023) for NACE G–N.
-<br> Code: `scraper_code.ipynb` / `scraper_code.py`
-
-- Load prepared datasets, filter and rename variables, review NaNs and missing data. 
-<br> Code: `analysis_code.ipynb` / `analysis_code.py`
-
-- Analyse sector's spending efficiency and labour intensity across selected countries.
-<br> Code: `analysis_code.ipynb` / `analysis_code.py`
-
-- Analyse participation of female researchers and its relationship to the sector's growth rates.
-<br> Code: `analysis_code.ipynb` / `analysis_code.py`
-
-- Compare trends, CAGRs and correlations across countries to understand how female inclusion relates to spending efficiency and labour intensity.
-<br> Code: `analysis_code.ipynb` / `analysis_code.py`
 
 ## :large_orange_diamond: Examples of programming solutions
 
@@ -170,7 +170,7 @@ data.to_csv('../data/scraper_data.csv', encoding='utf-8', index = False)
 print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 ```
 
-### Limitations & Challenges
+## :large_orange_diamond: Limitations & Challenges
 
 - **Data limits**: substantial missing data before 2008 and after 2022; metric comparability is best between 2009 and 2021.
 
@@ -210,3 +210,14 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 - Designing programmatic *visualizations* (`matplotlib`, `seaborn`) such as multi-variable time-series plots, scatterplots, and barplots.
 - Translating abstract statistical findings into *actionable business insights* (e.g., categorizing country-level behaviors into "Balanced growth" or "Initial investment" phases).
 - Documenting strict methodological limitations (e.g., distinguishing correlation from causation, addressing missing data gaps) to ensure *data integrity and transparent reporting*.
+
+## :large_orange_diamond: Portfolio Gallery
+
+| Project | Business Impact | Key Stack |
+| :--- | :--- | :--- |
+| **[euPOWERED Navigator](https://github.com/DominikaDrazyk/DataAnalysis_euPOWERED_Navigator)** | Policy-driven energy statistics & decarbonization tracking. | Python, Streamlit, Scraping |
+| **[eCommerce Audit](https://github.com/DominikaDrazyk/DataAnalysis_eCommerce_Audit)** | Identifying financial risks and logistical bottlenecks. | PostgreSQL, ETL, Python |
+| **[Consultant Dashboard](https://github.com/DominikaDrazyk/DataAnalysis_Consultant_Dashboard)** | Market viability and competitive landscape engine. | Power BI, DAX, Star Schema |
+| **[Efficiency and Diversity](https://github.com/DominikaDrazyk/DataAnalysis_Efficiency_and_Diversity)** | Statistical research on human capital and spending. | Python, Scraping, Multivariate Stats |
+
+[← Back to Profile](https://github.com/DominikaDrazyk)
