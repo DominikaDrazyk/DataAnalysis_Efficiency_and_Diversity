@@ -29,9 +29,9 @@ Select the path that best matches your interest:
 
 - [Full HTML Reports](./reports/): a comprehensive, rendered versions of the analysis, including all code, statistical interpretations, and granular findings;
 
-- [Interactive Notebooks](./py_notebooks/): the original Jupyter environment used for iterative development and data exploration;
+- [Interactive Notebooks](./notebooks/): the original Jupyter environment used for iterative development and data exploration;
 
-- [Clean Code](./py_codes/): production-ready, concise .py versions of the analytical logic, stripped of notebook metadata for better readability.
+- [Clean Code](./scripts/): production-ready, concise .py versions of the analytical logic, stripped of notebook metadata for better readability.
 
 :eight_spoked_asterisk: **Dependency Management** <br>
 This project uses Poetry to ensure a deterministic environment (locked versions) and 100% reproducibility. For basic users, a standard `requirements.txt` is also maintained.
