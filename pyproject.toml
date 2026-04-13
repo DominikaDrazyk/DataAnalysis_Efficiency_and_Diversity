@@ -1,0 +1,18 @@
+[project]
+name = "efficiency-and-diversity"
+version = "0.1.0"
+description = "Strategic evaluation of how efficiently selected EU countries convert R&D spending into human capital."
+authors = [
+    {name = "Dominika Drazyk",email = "dominika.a.drazyk@gmail.com"}
+]
+license = "Apache-2.0"
+readme = "README.md"
+requires-python = "^3.11"
+dependencies = [
+    "pyjstat (>=2.4.0,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -34,21 +34,37 @@ Select the path that best matches your interest:
 - [Clean Code](./py_codes/): production-ready, concise .py versions of the analytical logic, stripped of notebook metadata for better readability.
 
 :eight_spoked_asterisk: **Dependency Management** <br>
-A strictly defined environment manifest ensuring 100% reproducibility and security. Please, follow those steps in case you would like to run the code on your local machine: 
+This project uses Poetry to ensure a deterministic environment (locked versions) and 100% reproducibility. For basic users, a standard `requirements.txt` is also maintained.
 
-- **Step 1: Initialize the Virtual Environment**
+- **Option 1: Modern Workflow (Recommended)**
+Use this if you have Poetry installed. This will automatically create a virtual environment and install the exact versions from poetry.lock.
 
-*Linux / macOS Bash*
+Bash
 ```
-python3 -m venv .venv
-source .venv/bin/activate
+# Install dependencies and create virtual environment
+poetry install
+# Activate the environment
+poetry shell
 ```
-*Windows PowerShell*
+
+- **Option 2: Standard Workflow (Pip)**
+Use this for a traditional setup using the provided `requirements.txt`.
+
+1. Initialize the Virtual Environment
+
+Linux / macOS: 
 ```
-python -m venv .venv
-.venv\Scripts\activate
+python3 -m venv .venv && source .venv/bin/activate
 ```
-- **Step 2: Install Required Dependencies**
+
+Windows: 
+```
+python -m venv .venv && .venv\Scripts\activate
+```
+
+2. Install Dependencies
+
+Bash
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
@@ -56,9 +72,19 @@ pip install -r requirements.txt
 
 ## :large_orange_diamond: Overview
 
-This project examines how efficiently selected European countries convert R&D spending into researcher human capital within the knowledge-intensive services sector (NACE G–N). I inspect the available data to assess whether increasing female participation in researcher roles correlates with improved spending efficiency and labour dynamics.
+Strategic evaluation of how efficiently selected European countries convert R&D spending into researcher human capital within the knowledge-intensive services sector (NACE G–N). I inspect the available data to assess whether increasing female participation in researcher roles correlates with improved spending efficiency and labour dynamics.
 
 :part_alternation_mark: *Practical business question*: Does investing in a more gender-diverse R&D workforce help or hinder the efficient use of R&D budgets in knowledge-intensive services?
+
+### What this project delivers:
+
+- A reproducible, well-documented merged datasets ready for dashboards or further analyses.
+
+- Re-usable scraper and analysis code that can refresh results when source datasets are updated.
+
+- Clear visualizations of time trends, CAGRs, and female-share vs efficiency correlations.
+
+- :part_alternation_mark: Business-relevant insights for stakeholders interested in R&D investment, workforce planning, and diversity strategies.
 
 ### Data & Source Metadata
 
@@ -105,16 +131,6 @@ External data sources (Eurostat / DBnomics):
 
 - Compare trends, CAGRs and correlations across countries to understand how female inclusion relates to spending efficiency and labour intensity.
 <br> Code: `analysis_code.ipynb` / `analysis_code.py`
-
-### What this project delivers:
-
-- A reproducible, well-documented merged datasets ready for dashboards or further analyses.
-
-- Re-usable scraper and analysis code that can refresh results when source datasets are updated.
-
-- Clear visualizations of time trends, CAGRs, and female-share vs efficiency correlations.
-
-- :part_alternation_mark: Business-relevant insights for stakeholders interested in R&D investment, workforce planning, and diversity strategies.
 
 ## :large_orange_diamond: Examples of programming solutions
 
