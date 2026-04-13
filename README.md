@@ -213,7 +213,7 @@ print('Merged dataset was saved into \'../data/scraper_data.csv\'.')
 
 ## :large_orange_diamond: Portfolio Gallery
 
-| Project &nbsp;&nbsp;&nbsp;&nbsp| Business Impact | Key Stack |
+| Project | Business Impact | Key Stack |
 | :--- | :--- | :--- |
 | **[euPOWERED Navigator](https://github.com/DominikaDrazyk/DataAnalysis_euPOWERED_Navigator)** | Policy-driven energy statistics & decarbonization tracking. | Python, Streamlit, Scraping |
 | **[eCommerce Audit](https://github.com/DominikaDrazyk/DataAnalysis_eCommerce_Audit)** | Identifying financial risks and logistical bottlenecks. | PostgreSQL, ETL, Python |
