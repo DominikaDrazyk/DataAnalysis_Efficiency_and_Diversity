@@ -39,8 +39,8 @@ This project uses Poetry to ensure a deterministic environment (locked versions)
 - **Option 1: Modern Workflow (Recommended)**
 Use this if you have Poetry installed. This will automatically create a virtual environment and install the exact versions from `poetry.lock`.
 
-(Bash)
 ```
+# Bash
 # Install dependencies and create virtual environment
 poetry install
 # Activate the environment
@@ -51,21 +51,16 @@ poetry shell
 Use this for a traditional setup using the provided `requirements.txt`.
 
 1. Initialize the Virtual Environment
-
-    - (Linux / macOS) 
 ```
+# Linux / macOS
 python3 -m venv .venv && source .venv/bin/activate
-```
-
-    - (Windows) 
-```
+# Windows 
 python -m venv .venv && .venv\Scripts\activate
 ```
 
 2. Install Dependencies
-
-(Bash)
 ```
+# Bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
